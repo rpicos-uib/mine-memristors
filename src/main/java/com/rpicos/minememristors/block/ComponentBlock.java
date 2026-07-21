@@ -4,8 +4,10 @@ import com.rpicos.minememristors.blockentity.ComponentBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -40,6 +42,16 @@ public abstract class ComponentBlock extends Block implements EntityBlock {
 	@Override
 	public BlockState rotate(BlockState state, net.minecraft.world.level.block.Rotation rotation) {
 		return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+	}
+
+	@Override
+	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+			Player player, InteractionHand hand, BlockHitResult hitResult) {
+		// Default block behavior falls back to useWithoutItem() (cycling the preset) for ANY item
+		// in hand, not just a truly empty one - which silently consumes the interaction and stops
+		// the held item's own useOn() from ever running (e.g. the Probe's pin logic). Only defer to
+		// the empty-hand cycle-preset behavior when the hand is actually empty.
+		return stack.isEmpty() ? InteractionResult.TRY_WITH_EMPTY_HAND : InteractionResult.PASS;
 	}
 
 	@Override
