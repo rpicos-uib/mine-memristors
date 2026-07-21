@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "minememristors:block/memristor",
+    "north": "minememristors:block/terminal",
+    "south": "minememristors:block/terminal",
+    "east": "minememristors:block/memristor",
+    "west": "minememristors:block/memristor",
+    "up": "minememristors:block/memristor",
+    "down": "minememristors:block/memristor"
+  }
+}

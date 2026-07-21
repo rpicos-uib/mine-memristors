@@ -1,0 +1,57 @@
+package com.rpicos.minememristors.block;
+
+import com.rpicos.minememristors.blockentity.ComponentBlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.phys.BlockHitResult;
+
+/** Base for every two-terminal electrical component: a single block oriented along FACING,
+ *  its leads being the block's front and back faces. */
+public abstract class ComponentBlock extends Block implements EntityBlock {
+	public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
+
+	protected ComponentBlock(BlockBehaviour.Properties properties) {
+		super(properties);
+		registerDefaultState(getStateDefinition().any().setValue(FACING, Direction.NORTH));
+	}
+
+	@Override
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+		builder.add(FACING);
+	}
+
+	@Override
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		return defaultBlockState().setValue(FACING, context.getNearestLookingDirection());
+	}
+
+	@Override
+	public BlockState rotate(BlockState state, net.minecraft.world.level.block.Rotation rotation) {
+		return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+	}
+
+	@Override
+	protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+		if (level.isClientSide()) {
+			return InteractionResult.SUCCESS;
+		}
+		if (level.getBlockEntity(pos) instanceof ComponentBlockEntity component) {
+			component.cyclePreset();
+			component.markNetworkDirty();
+			player.sendOverlayMessage(Component.literal(component.probeSummary()));
+		}
+		return InteractionResult.SUCCESS_SERVER;
+	}
+}

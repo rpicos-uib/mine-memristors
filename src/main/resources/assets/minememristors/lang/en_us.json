@@ -1,0 +1,11 @@
+{
+  "block.minememristors.resistor": "Resistor",
+  "block.minememristors.capacitor": "Capacitor",
+  "block.minememristors.inductor": "Inductor",
+  "block.minememristors.memristor": "Memristor",
+  "block.minememristors.power_supply": "Power Supply",
+  "block.minememristors.function_generator": "Function Generator",
+  "block.minememristors.wire": "Circuit Wire",
+  "item.minememristors.probe": "Oscilloscope Probe",
+  "itemGroup.minememristors.components": "Mine Memristors"
+}

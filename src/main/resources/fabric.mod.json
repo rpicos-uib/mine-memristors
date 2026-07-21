@@ -1,0 +1,29 @@
+{
+	"schemaVersion": 1,
+	"id": "minememristors",
+	"version": "${version}",
+	"name": "Mine Memristors",
+	"description": "Teach analog electronics in Minecraft: resistors, capacitors, inductors, memristors, sources and an oscilloscope probe, all backed by a real circuit solver.",
+	"authors": [
+		"rpicos"
+	],
+	"contact": {
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/minememristors/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.rpicos.minememristors.MineMemristors"
+		],
+		"client": [
+			"com.rpicos.minememristors.client.MineMemristorsClient"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~26.2",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}

@@ -1,0 +1,157 @@
+package com.rpicos.minememristors.sim;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * A modified-nodal-analysis circuit: node 0 is always ground. Call {@link #addNode()} for every
+ * other electrical node, add elements/sources referencing those node indices, then call
+ * {@link #step(double)} once per simulation tick.
+ */
+public class Circuit {
+
+	/** Tiny conductance to ground added to every node so floating/disconnected islands don't
+	 *  produce a singular matrix (a component with an unwired terminal is a normal, not
+	 *  exceptional, state in a world-built circuit). */
+	private static final double GROUND_LEAK_SIEMENS = 1e-9;
+
+	private int nodeCount = 1; // node 0 = ground
+	private final List<Element> elements = new ArrayList<>();
+	private final List<VoltageSource> sources = new ArrayList<>();
+
+	private double[] nodeVoltages = new double[1];
+	private double time = 0;
+
+	public int addNode() {
+		return nodeCount++;
+	}
+
+	public void add(Element element) {
+		elements.add(element);
+	}
+
+	public void add(VoltageSource source) {
+		source.branchIndex = sources.size();
+		sources.add(source);
+	}
+
+	public double getVoltage(int node) {
+		return node == 0 ? 0 : nodeVoltages[node];
+	}
+
+	public double time() {
+		return time;
+	}
+
+	/** Adds conductance {@code g} between nodes a and b (ground-referenced nodes are skipped). */
+	public void stampConductance(double[][] mat, int a, int b, double g) {
+		if (a != 0) mat[a - 1][a - 1] += g;
+		if (b != 0) mat[b - 1][b - 1] += g;
+		if (a != 0 && b != 0) {
+			mat[a - 1][b - 1] -= g;
+			mat[b - 1][a - 1] -= g;
+		}
+	}
+
+	/** Adds a Norton current source of value {@code i} flowing from node a to node b. */
+	public void stampCurrentSource(double[] z, int a, int b, double i) {
+		if (a != 0) z[a - 1] -= i;
+		if (b != 0) z[b - 1] += i;
+	}
+
+	public void step(double dt) {
+		int n = nodeCount - 1;
+		int m = sources.size();
+		int size = n + m;
+
+		double[][] mat = new double[size][size];
+		double[] z = new double[size];
+
+		for (int i = 0; i < n; i++) {
+			mat[i][i] += GROUND_LEAK_SIEMENS;
+		}
+
+		for (Element e : elements) {
+			e.stamp(this, mat, z, dt);
+		}
+
+		double newTime = time + dt;
+		for (VoltageSource s : sources) {
+			int row = n + s.branchIndex;
+			if (s.a != 0) {
+				mat[row][s.a - 1] += 1;
+				mat[s.a - 1][row] += 1;
+			}
+			if (s.b != 0) {
+				mat[row][s.b - 1] -= 1;
+				mat[s.b - 1][row] -= 1;
+			}
+			z[row] = s.waveform.valueAt(newTime);
+		}
+
+		double[] x = solve(mat, z);
+
+		nodeVoltages = new double[nodeCount];
+		for (int i = 0; i < n; i++) {
+			nodeVoltages[i + 1] = x[i];
+		}
+		for (VoltageSource s : sources) {
+			s.setSolvedCurrent(x[n + s.branchIndex]);
+		}
+
+		for (Element e : elements) {
+			e.updateState(this, dt);
+		}
+
+		time = newTime;
+	}
+
+	/** Gaussian elimination with partial pivoting. */
+	private static double[] solve(double[][] a, double[] b) {
+		int n = b.length;
+		if (n == 0) return new double[0];
+
+		for (int col = 0; col < n; col++) {
+			int pivot = col;
+			double best = Math.abs(a[col][col]);
+			for (int row = col + 1; row < n; row++) {
+				double v = Math.abs(a[row][col]);
+				if (v > best) {
+					best = v;
+					pivot = row;
+				}
+			}
+			if (best < 1e-15) {
+				throw new ArithmeticException("Singular circuit matrix at column " + col
+						+ " - check for unconnected node with no path to ground.");
+			}
+			if (pivot != col) {
+				double[] tmpRow = a[col];
+				a[col] = a[pivot];
+				a[pivot] = tmpRow;
+				double tmp = b[col];
+				b[col] = b[pivot];
+				b[pivot] = tmp;
+			}
+
+			for (int row = col + 1; row < n; row++) {
+				double factor = a[row][col] / a[col][col];
+				if (factor == 0) continue;
+				for (int c = col; c < n; c++) {
+					a[row][c] -= factor * a[col][c];
+				}
+				b[row] -= factor * b[col];
+			}
+		}
+
+		double[] x = new double[n];
+		for (int row = n - 1; row >= 0; row--) {
+			double sum = b[row];
+			for (int c = row + 1; c < n; c++) {
+				sum -= a[row][c] * x[c];
+			}
+			x[row] = sum / a[row][row];
+		}
+		return x;
+	}
+}

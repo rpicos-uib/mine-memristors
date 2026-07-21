@@ -1,0 +1,45 @@
+package com.rpicos.minememristors;
+
+import com.rpicos.minememristors.blockentity.CapacitorBlockEntity;
+import com.rpicos.minememristors.blockentity.FunctionGeneratorBlockEntity;
+import com.rpicos.minememristors.blockentity.InductorBlockEntity;
+import com.rpicos.minememristors.blockentity.MemristorBlockEntity;
+import com.rpicos.minememristors.blockentity.PowerSupplyBlockEntity;
+import com.rpicos.minememristors.blockentity.ResistorBlockEntity;
+import com.rpicos.minememristors.blockentity.WireBlockEntity;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+
+import java.util.Set;
+
+public final class ModBlockEntities {
+	public static final BlockEntityType<ResistorBlockEntity> RESISTOR =
+			register("resistor", ResistorBlockEntity::new, ModBlocks.RESISTOR);
+	public static final BlockEntityType<CapacitorBlockEntity> CAPACITOR =
+			register("capacitor", CapacitorBlockEntity::new, ModBlocks.CAPACITOR);
+	public static final BlockEntityType<InductorBlockEntity> INDUCTOR =
+			register("inductor", InductorBlockEntity::new, ModBlocks.INDUCTOR);
+	public static final BlockEntityType<MemristorBlockEntity> MEMRISTOR =
+			register("memristor", MemristorBlockEntity::new, ModBlocks.MEMRISTOR);
+	public static final BlockEntityType<PowerSupplyBlockEntity> POWER_SUPPLY =
+			register("power_supply", PowerSupplyBlockEntity::new, ModBlocks.POWER_SUPPLY);
+	public static final BlockEntityType<FunctionGeneratorBlockEntity> FUNCTION_GENERATOR =
+			register("function_generator", FunctionGeneratorBlockEntity::new, ModBlocks.FUNCTION_GENERATOR);
+	public static final BlockEntityType<WireBlockEntity> WIRE =
+			register("wire", WireBlockEntity::new, ModBlocks.WIRE);
+
+	private static <T extends BlockEntity> BlockEntityType<T> register(
+			String path, BlockEntityType.BlockEntitySupplier<T> factory, Block block) {
+		ResourceKey<BlockEntityType<?>> key = ResourceKey.create(Registries.BLOCK_ENTITY_TYPE, MineMemristors.id(path));
+		BlockEntityType<T> type = new BlockEntityType<>(factory, Set.of(block));
+		return Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, key, type);
+	}
+
+	public static void init() {
+	}
+}
