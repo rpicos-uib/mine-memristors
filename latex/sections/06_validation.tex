@@ -1,0 +1,46 @@
+\section{Verification Methodology}
+\label{sec:validation}
+
+Because the entire point of the mod is that its behavior is not a scripted approximation,
+each element's stamping and state-update routines were checked during development against
+closed-form analytic solutions -- the exponential RC and RL step responses, and the
+memristor's charge-controlled ODE integrated in closed form for a constant applied voltage
+-- and agreed with those references to within approximately 1\%, consistent with the
+timestep used (one Minecraft tick, $h = 1/20$~s) and the trapezoidal-integration companion
+models' known truncation error. Because the solver package has no dependency on any
+Minecraft class, this kind of check can be run as a plain Java program with no game
+instance, decompiled game code, or build tooling involved, which made it practical to
+re-check every element in isolation before wiring it into the rest of the mod.
+
+The topology-construction bug described in Section~\ref{sec:topology-bug} was diagnosed and
+confirmed using a different technique: rather than reasoning about the union--find algorithm
+purely on paper, the actual block positions and orientations of a real, in-world circuit
+were extracted directly from a saved world's region files and replayed offline, in a small
+standalone script, through both the original and the corrected version of the algorithm.
+The original algorithm collapsed the entire circuit to a single electrical node regardless
+of the wiring's actual shape; the corrected version recovered the intended two-node series
+loop. This is a useful diagnostic pattern in general when a bug is suspected in \emph{how a
+game world is interpreted} rather than in a self-contained numerical routine: extracting the
+authoritative world state and replaying the suspect logic against it offline is often more
+conclusive than tracing the bug through the running game.
+
+Because the mod targets a version of Minecraft (26.2) that predates the knowledge cutoff of
+any large language model used to assist in its development, and that version introduced
+several breaking changes to modding-relevant APIs (an unobfuscated mapping scheme, a
+two-phase heads-up-display rendering interface, a redstone-neighbor-update signature change,
+and a new per-item model-definition file format that a naively-written item registration
+silently fails against), each such API surface was checked directly against the
+decompiled game source and the mapped game jar for this specific version before being relied
+upon, rather than against generic recollection of how equivalent APIs worked in earlier,
+better-documented versions of the game. This is offered less as a claim specific to this mod
+and more as a general observation for anyone building instructional software against a
+platform that updates faster than the reference material describing it: verifying an
+assumption against the authoritative source for the exact version in use is worth the extra
+step whenever the platform is a moving target.
+
+We note for transparency that, at the time of writing, this verification was performed
+ad hoc during development rather than captured as a persisted, automatically re-run test
+suite in the repository; formalizing the closed-form comparisons described above into a
+checked-in regression suite is planned before a longer-term evaluation of the tool (see
+Section~\ref{sec:limitations}), and would strengthen any reviewer's ability to independently
+confirm the accuracy claims made here.

@@ -1,0 +1,48 @@
+\section{Related Work}
+\label{sec:related-work}
+
+\subsection{Circuit simulators}
+
+SPICE and its descendants~\cite{nagel1973spice} remain the reference implementation of
+circuit simulation, built around modified nodal analysis~\cite{ho1975mna}: node voltages and
+a small number of auxiliary branch currents (one per independent voltage source or inductor,
+in the classical formulation) are solved for simultaneously at each timestep, with reactive
+elements replaced by companion resistive/source models derived from a numerical integration
+rule. Educational tools such as the Falstad circuit simulator and PhET's Circuit
+Construction Kit lower the barrier to entry by replacing SPICE's netlist syntax with direct
+schematic manipulation, and are widely used in introductory courses. All three, however,
+present the circuit as a two-dimensional schematic. Mine Memristors uses the same underlying
+numerical technique -- Sections~\ref{sec:architecture} and~\ref{sec:circuit-solver} describe
+an MNA solver with trapezoidal-integration companion models for reactive elements, the same
+family of technique SPICE uses -- but embeds it in a three-dimensional, first-person, block-based
+world instead of a schematic canvas.
+
+\subsection{Games and sandbox environments in engineering education}
+
+The instructional value of games and simulations is well studied in general -- a
+meta-analysis by Sitzmann~\cite{sitzmann2011meta} found simulation games to be more
+effective for training self-efficacy and knowledge retention than comparison instructional
+methods across a range of technical domains -- and Minecraft specifically has an
+established informal-learning literature: Nebel et al.'s review~\cite{nebel2016mining}
+surveys its use across STEM subjects, and its redstone subsystem is a common entry point
+for teaching digital logic and computer architecture concepts, since it already lets
+players build gates, adders, and memory cells out of in-game blocks. Redstone, however, is
+fundamentally a boolean, discrete-time signal system with no built-in notion of continuous
+voltage, current, or reactive state, so it cannot represent analog behavior. Mine Memristors
+is, to the author's knowledge, the first Minecraft modification to embed a real continuous-time
+circuit solver rather than approximating one with the game's existing discrete redstone
+mechanics.
+
+\subsection{Memristors as a teaching subject}
+
+The memristor was postulated on symmetry grounds by Chua~\cite{chua1971memristor} as a
+fourth fundamental two-terminal circuit element, relating charge and flux, alongside the
+resistor, capacitor, and inductor; a physical device matching the predicted
+charge-controlled behavior was reported by Strukov et al.\ at
+HP~Labs~\cite{strukov2008missing}. Because the memristor is both the newest of the four
+canonical elements and the one whose behavior (state that persists and depends on the
+history of current through the device) is least like anything in a first circuits course,
+it is a natural stress-test for whether a teaching tool actually solves the underlying
+mathematics rather than approximating it -- an in-game device whose resistance visibly
+drifts with accumulated charge, and whose state survives being disconnected and reconnected,
+is a much more concrete introduction to the concept than the differential equation alone.
