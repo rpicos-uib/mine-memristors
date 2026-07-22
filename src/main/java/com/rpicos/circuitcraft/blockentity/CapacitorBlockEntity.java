@@ -1,6 +1,7 @@
 package com.rpicos.circuitcraft.blockentity;
 
 import com.rpicos.circuitcraft.ModBlockEntities;
+import com.rpicos.circuitcraft.sim.AcCircuit;
 import com.rpicos.circuitcraft.sim.Capacitor;
 import com.rpicos.circuitcraft.sim.Circuit;
 import net.minecraft.core.BlockPos;
@@ -8,7 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
 
-public class CapacitorBlockEntity extends ComponentBlockEntity implements ValueEditable {
+public class CapacitorBlockEntity extends ComponentBlockEntity implements ValueEditable, AcStampable {
 
 	private static final double[] PRESETS_FARADS = {1e-6, 10e-6, 100e-6, 1_000e-6};
 	private static final double MIN_MICROFARADS = PRESETS_FARADS[0] * 1e6;
@@ -45,6 +46,11 @@ public class CapacitorBlockEntity extends ComponentBlockEntity implements ValueE
 		live = new Capacitor(nodeA, nodeB, capacitanceFarads);
 		circuit.add(live);
 		bindNodes(circuit, nodeA, nodeB);
+	}
+
+	@Override
+	public void addToAcCircuit(AcCircuit circuit, int nodeA, int nodeB) {
+		circuit.add(new Capacitor(nodeA, nodeB, capacitanceFarads));
 	}
 
 	@Override

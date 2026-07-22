@@ -1,6 +1,6 @@
 package com.rpicos.circuitcraft.sim;
 
-public class Resistor implements Element {
+public class Resistor implements Element, AcElement {
 	public final int a, b;
 	public double ohms;
 
@@ -22,5 +22,12 @@ public class Resistor implements Element {
 
 	public double current(Circuit circuit) {
 		return (circuit.getVoltage(a) - circuit.getVoltage(b)) / ohms;
+	}
+
+	/** AC case: a resistor's impedance is frequency-independent, {@code Z = R}, so its admittance
+	 *  is just the same real conductance used for the transient stamp. */
+	@Override
+	public void stampAc(AcCircuit circuit, Complex[][] mat, Complex[] z, double omega) {
+		circuit.stampAdmittance(mat, a, b, Complex.real(1.0 / ohms));
 	}
 }

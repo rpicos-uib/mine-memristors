@@ -33,8 +33,10 @@ public final class ModCreativeTab {
 						output.accept(ModItems.GROUND);
 						output.accept(ModItems.DIODE);
 						output.accept(ModItems.OP_AMP);
+						output.accept(ModItems.AC_SOURCE);
 						output.accept(ModItems.PROBE);
 						output.accept(ModItems.XY_PROBE);
+						output.accept(ModItems.AC_PROBE);
 					})
 					.build()
 	);

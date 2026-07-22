@@ -1,5 +1,6 @@
 package com.rpicos.circuitcraft;
 
+import com.rpicos.circuitcraft.block.AcSourceBlock;
 import com.rpicos.circuitcraft.block.AmmeterBlock;
 import com.rpicos.circuitcraft.block.CapacitorBlock;
 import com.rpicos.circuitcraft.block.DiodeBlock;
@@ -37,6 +38,7 @@ public final class ModBlocks {
 	public static final Block GROUND = register("ground", GroundBlock::new, componentProperties());
 	public static final Block DIODE = register("diode", DiodeBlock::new, componentProperties());
 	public static final Block OP_AMP = register("op_amp", OpAmpBlock::new, componentProperties());
+	public static final Block AC_SOURCE = register("ac_source", AcSourceBlock::new, componentProperties());
 
 	private static BlockBehaviour.Properties componentProperties() {
 		return BlockBehaviour.Properties.of().strength(1.0F).sound(SoundType.METAL);

@@ -81,11 +81,13 @@ as before; the two interactions coexist.
 | <img src="docs/icons/ground.png" width="32"> | **Ground** | Ties whatever network it's wired into to a real 0V reference point, the same way a real circuit needs a ground reference before "voltage at this node" means anything. Conductive on all six faces, wire it in like any other participant. Probing it always reads exactly 0V, confirming what's actually tied to reference. |
 | <img src="docs/icons/ammeter.png" width="32"> | **Ammeter** | A 0V voltage source in series - electrically an ideal wire, so it doesn't disturb the circuit, but gives an exact current reading. Pin it with the Probe to see a live current trace on the oscilloscope, the same way you'd watch a voltage. |
 | <img src="docs/icons/diode.png" width="32"> | **Diode** | The lead facing the direction you were looking when you placed it is the anode, the opposite lead is the cathode - current flows readily anode→cathode past the forward voltage, and is (almost) blocked in reverse. Right-click cycles silicon (~0.7V) / germanium (~0.3V) / red LED (~2V) presets. Modeled with a linearized Shockley diode equation re-fit every tick, not a lookup table. |
-| <img src="docs/icons/op_amp.png" width="32"> | **Ideal Op-Amp** | Infinite gain, infinite input impedance, zero output impedance - the textbook ideal op-amp, enforcing a "virtual short" between its two inputs via its own dedicated branch-current unknown in the solver (the same MNA trick used for voltage sources, just referencing different nodes for the constraint than for the current injection). The only 3-terminal component: output and the inverting input (V−) are the front/back leads as usual; the non-inverting input (V+) is the block's top face (or its north face, if the block itself is oriented vertically). No adjustable preset - an ideal op-amp has no parameters to tune. |
+| <img src="docs/icons/op_amp.png" width="32"> | **Ideal Op-Amp** | Infinite gain, infinite input impedance, zero output impedance - the textbook ideal op-amp, enforcing a "virtual short" between its two inputs via its own dedicated branch-current unknown in the solver (the same MNA trick used for voltage sources, just referencing different nodes for the constraint than for the current injection). The only 3-terminal component: output and the inverting input (V−) are the front/back leads as usual; the non-inverting input (V+) is the block's top face (or its north face, if the block itself is oriented vertically). No adjustable preset for the ideal DC/transient model; the AC (Bode-plot) solver instead uses a fixed two-pole gain model (100dB DC gain, poles at 20Hz and 3MHz) - see AC Source/AC Probe below. |
+| <img src="docs/icons/ac_source.png" width="32"> | **AC Source** | The excitation for an AC (small-signal) sweep. Wired like any other two-terminal component, but electrically a 0V source (a plain wire) in the regular DC/transient simulation - its real behavior only appears through the AC Probe. All three parameters (amplitude, min frequency, max frequency) are set through shift+right-click only, since a frequency *range* isn't the kind of thing a short preset list represents well. |
 | <img src="docs/icons/voltage_module.png" width="32"> | **Voltage Module** | Undirected utility cube (no facing, no leads) that touches a Function Generator on any face and sets its amplitude. Right-click cycles its own preset (1.5/5/9/12/24 V). Same-kind modules touching each other relay one shared value along the whole chain - whichever module was right-clicked most recently wins and propagates to every generator the chain reaches, so one control can drive several generators at once. |
 | <img src="docs/icons/frequency_module.png" width="32"> | **Frequency Module** | Same idea as the Voltage Module, but sets a Function Generator's frequency (0.5/1/2/5/10 Hz presets). A mixed chain of Voltage and Frequency modules relays both values through, regardless of which order they're arranged in. |
 | <img src="docs/icons/probe.png" width="32"> | **Probe** | Right-click a component, Wire, or Ground to pin it as one of up to 3 channels shown simultaneously on the oscilloscope HUD (pinning a 4th evicts the oldest); shift+right-click unpins it. Hold the probe in either hand to see the HUD - each pinned channel gets its own scrolling trace, color-coded, stacked in the corner. A component shows the voltage drop across its two leads; a Wire or Ground shows the absolute voltage at that single point. Each channel's trace is auto-scaled to its own history, with the full-scale value printed at the top and bottom of its graph in SI-prefixed form (k/m/u/n/p, whichever keeps the number compact). Once all 3 slots are full, the oldest channel is outlined in yellow and labeled "(next)" so you can see which one a new pin would evict before you commit to it. |
 | <img src="docs/icons/xy_probe.png" width="32"> | **X-Y Oscilloscope Probe** | A second, independent probe: instead of plotting channels against time, it plots one pinned channel's voltage against another's - a real bench oscilloscope's X-Y mode, tracing Lissajous figures for phase/frequency comparisons. Right-click to pin - whichever block you just clicked always becomes (or stays) the **Y** channel, demoting the previous Y to X and evicting the old X if both slots were already full; shift+right-click unpins. Each axis is scaled independently to its own channel's peak magnitude, with the full-scale value printed at both ends of each axis directly on the plot in SI-prefixed form (k/m/u/n/p), so two very differently sized signals both use the plot's full range instead of one being squashed by a shared scale - a 90°-phase-shifted, equal-amplitude pair still traces an actual circle, since the two independent scales coincide whenever the amplitudes actually match. Independent of the regular Probe's own pins - hold both at once to see both HUDs side by side. |
+| <img src="docs/icons/ac_probe.png" width="32"> | **AC Oscilloscope Probe** | A genuine two-step probe, unlike the other two: right-click an AC Source first to pin it as the sweep's excitation (a hint appears; nothing is computed yet). Right-click a second, different point afterward - any component, wire, or ground - to run the sweep (60 log-spaced frequencies across the source's configured range) and show a Bode plot: magnitude in dB on top, phase in degrees below, both against log-frequency. The source stays pinned afterward, so you can probe more points against it without re-clicking it each time; shift+right-click unpins. |
 
 ### Wiring rules
 
@@ -121,6 +123,8 @@ of ingredients; shaped ones show the actual 3×3 grid layout.
 | <img src="docs/recipes/op_amp.png"> | **Ideal Op-Amp ×1** — 2 gold nuggets, redstone, quartz. |
 | <img src="docs/recipes/probe.png"> | **Probe ×1** — redstone, iron nugget, and a stick, stacked vertically. |
 | <img src="docs/recipes/xy_probe.png"> | **X-Y Oscilloscope Probe ×1** — redstone, quartz, and a stick, stacked vertically. |
+| *(no image yet)* | **AC Source ×1** — redstone, glowstone dust, gold nugget (shapeless). |
+| *(no image yet)* | **AC Oscilloscope Probe ×1** — redstone, glowstone dust, and a stick, stacked vertically. |
 
 None of these have recipe-book unlock advancements yet, so they won't show a "new recipe" toast —
 but they're fully craftable by hand right now. See [Contributing](#contributing) if you want to add
@@ -149,10 +153,19 @@ gets its own branch-current unknown, the standard MNA treatment for ideal source
 elements use trapezoidal-integration companion models (the same technique SPICE uses) rather than
 backward Euler, so LC-type behavior doesn't get artificially damped out.
 
+A second, complex-valued solver, `AcCircuit`, sits alongside it for AC (Bode-plot) analysis:
+`Complex` is a plain immutable complex number, `AcElement` implementations stamp a frequency-dependent
+admittance given an angular frequency directly (no timestep involved), and `AcVoltageSource`/`AcOpAmp`
+handle sources and the op-amp's two-pole gain model the same "own branch-current unknown" way their
+transient counterparts do. `CircuitNetworkManager` computes the wiring topology once and reuses the
+identical node numbering for both solvers, so they can never disagree on which position is which node.
+
 Because this package has no Minecraft imports at all, you can write and run plain-Java tests
 against it directly with `javac`/`java` — no Gradle, no decompiling Minecraft, fast iteration.
-That's how the solver was validated during development: against closed-form RC/RL step responses
-and the memristor's analytic charge-controlled ODE.
+That's how the solver was validated during development: against closed-form RC/RL step responses,
+the memristor's analytic charge-controlled ODE, and — for the AC solver — closed-form Bode-plot
+references (a resistive divider's flat response, an RC/RL divider's -3dB/45° cutoff point and
+20dB/decade rolloff, and the op-amp model's DC gain and pole frequency).
 
 ### Adding a new component type
 
@@ -169,7 +182,7 @@ and the memristor's analytic charge-controlled ODE.
    existing pair — they're generic besides the texture path), and a lang entry.
 6. Optionally add a `data/circuitcraft/recipe/your_component.json`.
 
-### Known limitations (v0.2)
+### Known limitations (v0.5)
 
 - **Component state resets on circuit rebuild.** `CircuitNetworkManager` rebuilds the whole
   `Circuit` from scratch whenever wiring changes anywhere in that network, so a capacitor's charge
@@ -178,7 +191,11 @@ and the memristor's analytic charge-controlled ODE.
   of a memristor. Making the others persist too is a good first contribution.
 - **No recipe-book unlock advancements** — recipes work but won't appear highlighted/toast when
   first available.
-- **Values are fixed presets**, cycled by right-click, rather than a numeric-entry GUI.
+- **AC analysis is small-signal only.** Every independent source other than the pinned AC Source
+  is always stamped at 0V during a sweep, regardless of its own redstone-activated state; the
+  op-amp's two-pole gain (100dB DC gain, poles at 20Hz/3MHz) is a fixed constant, not yet exposed
+  through the value editor; and the memristor's AC case is simply a frozen resistor with no
+  frequency dependence of its own modeled yet.
 
 ## Contributing
 

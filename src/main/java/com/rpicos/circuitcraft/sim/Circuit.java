@@ -32,13 +32,26 @@ public class Circuit {
 	}
 
 	public void add(VoltageSource source) {
-		source.branchIndex = sources.size();
 		sources.add(source);
 	}
 
 	public void add(IdealOpAmp opAmp) {
-		opAmp.branchIndex = sources.size() + opAmps.size();
 		opAmps.add(opAmp);
+	}
+
+	/** Assigns final branch-current row indices to every source/op-amp added so far: sources
+	 *  first (0..sources.size()-1), then op-amps continuing on from there. Done once per solve
+	 *  rather than at add() time, since add() only sees each list's size *at that moment* -
+	 *  correct only by accident if every voltage source happens to be added before every op-amp,
+	 *  which {@link com.rpicos.circuitcraft.network.CircuitNetworkManager#rebuild} cannot
+	 *  guarantee (it iterates a HashMap in unspecified order). */
+	private void assignBranchIndices() {
+		for (int i = 0; i < sources.size(); i++) {
+			sources.get(i).branchIndex = i;
+		}
+		for (int i = 0; i < opAmps.size(); i++) {
+			opAmps.get(i).branchIndex = sources.size() + i;
+		}
 	}
 
 	public double getVoltage(int node) {
@@ -68,6 +81,8 @@ public class Circuit {
 	}
 
 	public void step(double dt) {
+		assignBranchIndices();
+
 		int n = nodeCount - 1;
 		int m = sources.size() + opAmps.size();
 		int size = n + m;

@@ -1,6 +1,7 @@
 package com.rpicos.circuitcraft.blockentity;
 
 import com.rpicos.circuitcraft.ModBlockEntities;
+import com.rpicos.circuitcraft.sim.AcCircuit;
 import com.rpicos.circuitcraft.sim.Circuit;
 import com.rpicos.circuitcraft.sim.Resistor;
 import net.minecraft.core.BlockPos;
@@ -8,7 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
 
-public class ResistorBlockEntity extends ComponentBlockEntity implements ValueEditable {
+public class ResistorBlockEntity extends ComponentBlockEntity implements ValueEditable, AcStampable {
 
 	private static final double[] PRESETS_OHMS = {10, 100, 1_000, 10_000};
 
@@ -42,6 +43,11 @@ public class ResistorBlockEntity extends ComponentBlockEntity implements ValueEd
 		live = new Resistor(nodeA, nodeB, resistanceOhms);
 		circuit.add(live);
 		bindNodes(circuit, nodeA, nodeB);
+	}
+
+	@Override
+	public void addToAcCircuit(AcCircuit circuit, int nodeA, int nodeB) {
+		circuit.add(new Resistor(nodeA, nodeB, resistanceOhms));
 	}
 
 	@Override

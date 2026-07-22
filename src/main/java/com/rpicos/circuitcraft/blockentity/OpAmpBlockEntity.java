@@ -1,6 +1,8 @@
 package com.rpicos.circuitcraft.blockentity;
 
 import com.rpicos.circuitcraft.ModBlockEntities;
+import com.rpicos.circuitcraft.sim.AcCircuit;
+import com.rpicos.circuitcraft.sim.AcOpAmp;
 import com.rpicos.circuitcraft.sim.Circuit;
 import com.rpicos.circuitcraft.sim.IdealOpAmp;
 import net.minecraft.core.BlockPos;
@@ -59,6 +61,15 @@ public class OpAmpBlockEntity extends NetworkBlockEntity implements Probeable {
 		this.nodePlus = nodePlus;
 		live = new IdealOpAmp(nodePlus, nodeMinus, nodeOut);
 		circuit.add(live);
+	}
+
+	/** AC case: unlike the transient/DC solve above, which treats this op-amp as an ideal,
+	 *  infinite-bandwidth nullor (an exact model at the frequencies the transient solver itself
+	 *  cares about), the AC solver instead uses {@link AcOpAmp}'s two-pole open-loop gain model -
+	 *  the whole point of a Bode-plot probe is to see gain rolloff and phase shift that an ideal
+	 *  op-amp, by definition, could never exhibit. */
+	public void addToAcCircuit(AcCircuit circuit, int nodeOut, int nodeMinus, int nodePlus) {
+		circuit.add(new AcOpAmp(nodePlus, nodeMinus, nodeOut));
 	}
 
 	@Override

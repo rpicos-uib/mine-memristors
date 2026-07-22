@@ -29,6 +29,20 @@ and the interaction itself -- typing into a floating on-screen box while looking
 block -- is a more conventional GUI paradigm than the rest of the mod's otherwise
 purely block-placement-driven interface, a design tension future work could revisit.
 
+\textbf{AC analysis is small-signal only, with fixed op-amp pole values.} The AC solver
+(Section~\ref{sec:ac-analysis}) always stamps every independent source other than the pinned
+AC Source at exactly 0~V, regardless of a power supply's or function generator's own
+redstone-activated state -- the standard small-signal convention, but one that does not
+distinguish a source that is genuinely switched off from one merely treated as an AC ground
+for the sweep. The two-pole op-amp model's gain, and both pole frequencies, are fixed
+constants rather than exposed as an editable preset the way every other adjustable quantity
+in the mod now is (Section~\ref{sec:limitations}'s discussion of the value editor above);
+exposing them would let a player explore how moving a dominant pole changes phase margin
+directly, rather than only observing one fixed, illustrative op-amp's response. The
+memristor's AC case is, as noted in Section~\ref{sec:ac-analysis}, simply a frozen resistor
+with no frequency dependence of its own -- a real small-signal memristor model remains
+future work.
+
 \textbf{Solver scalability.} The MNA system for each independent network is solved by dense
 Gaussian elimination every tick, which is adequate for the circuit sizes a single player
 typically constructs by hand, but scales as $O(n^3)$ in the number of independent nodes and

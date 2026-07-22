@@ -1,5 +1,6 @@
 package com.rpicos.circuitcraft;
 
+import com.rpicos.circuitcraft.item.AcProbeItem;
 import com.rpicos.circuitcraft.item.ProbeItem;
 import com.rpicos.circuitcraft.item.XyProbeItem;
 import net.minecraft.core.Registry;
@@ -26,9 +27,11 @@ public final class ModItems {
 	public static final Item GROUND = registerBlockItem("ground", ModBlocks.GROUND);
 	public static final Item DIODE = registerBlockItem("diode", ModBlocks.DIODE);
 	public static final Item OP_AMP = registerBlockItem("op_amp", ModBlocks.OP_AMP);
+	public static final Item AC_SOURCE = registerBlockItem("ac_source", ModBlocks.AC_SOURCE);
 
 	public static final Item PROBE = registerItem("probe", ProbeItem::new);
 	public static final Item XY_PROBE = registerItem("xy_probe", XyProbeItem::new);
+	public static final Item AC_PROBE = registerItem("ac_probe", AcProbeItem::new);
 
 	private static Item registerBlockItem(String path, Block block) {
 		ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, CircuitCraft.id(path));

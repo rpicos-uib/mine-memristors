@@ -1,7 +1,7 @@
 package com.rpicos.circuitcraft.sim;
 
 /** Trapezoidal-integration companion model, dual of {@link Capacitor}. */
-public class Inductor implements Element {
+public class Inductor implements Element, AcElement {
 	public final int a, b;
 	public double henries;
 
@@ -33,5 +33,12 @@ public class Inductor implements Element {
 
 	public double current() {
 		return iPrev;
+	}
+
+	/** AC case: an inductor's impedance is {@code Z = j*omega*L}, so its admittance is
+	 *  {@code Y = 1/(j*omega*L)}. */
+	@Override
+	public void stampAc(AcCircuit circuit, Complex[][] mat, Complex[] z, double omega) {
+		circuit.stampAdmittance(mat, a, b, Complex.ONE.divide(new Complex(0, omega * henries)));
 	}
 }

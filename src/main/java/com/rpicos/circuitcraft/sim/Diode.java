@@ -4,7 +4,7 @@ package com.rpicos.circuitcraft.sim;
  *  conductance-plus-Norton-source pair - the same "reuse last tick's converged state" spirit
  *  the reactive elements' trapezoidal companion models already use, rather than iterating a
  *  full Newton-Raphson solve within a single tick. */
-public class Diode implements Element {
+public class Diode implements Element, AcElement {
 	private static final double THERMAL_VOLTAGE = 0.02585; // kT/q at ~300 K
 	// Clamps the linearization point, not the actual solved voltage, so a large forward swing
 	// between ticks can't send exp() to infinity.
@@ -17,10 +17,24 @@ public class Diode implements Element {
 	private double vPrev = 0;
 
 	public Diode(int a, int b, double saturationCurrentAmps, double idealityFactor) {
+		this(a, b, saturationCurrentAmps, idealityFactor, 0);
+	}
+
+	/** As above, but seeding the linearization point directly rather than starting at 0V - used
+	 *  to build a fresh AC-analysis instance (its own node indices, generally different from any
+	 *  live transient instance's) that still linearizes about the same real operating point the
+	 *  live diode has actually settled at, rather than restarting from an unbiased 0V guess. */
+	public Diode(int a, int b, double saturationCurrentAmps, double idealityFactor, double initialVoltage) {
 		this.a = a;
 		this.b = b;
 		this.saturationCurrentAmps = saturationCurrentAmps;
 		this.idealityFactor = idealityFactor;
+		this.vPrev = initialVoltage;
+	}
+
+	/** The terminal voltage this diode is currently linearized about (last tick's solved value). */
+	public double lastVoltage() {
+		return vPrev;
 	}
 
 	/** Shockley diode equation, evaluated exactly (unclamped) at an arbitrary voltage - used for
@@ -30,12 +44,20 @@ public class Diode implements Element {
 		return saturationCurrentAmps * (Math.exp(v / vt) - 1);
 	}
 
+	/** Small-signal conductance {@code dI/dV} at the diode's last known DC operating point -
+	 *  shared by the transient companion stamp and the AC small-signal stamp below. */
+	private double smallSignalConductance() {
+		double vt = idealityFactor * THERMAL_VOLTAGE;
+		double v0 = Math.min(vPrev, MAX_LINEARIZATION_VOLTS);
+		return (saturationCurrentAmps / vt) * Math.exp(v0 / vt);
+	}
+
 	@Override
 	public void stamp(Circuit circuit, double[][] mat, double[] z, double dt) {
 		double vt = idealityFactor * THERMAL_VOLTAGE;
 		double v0 = Math.min(vPrev, MAX_LINEARIZATION_VOLTS);
 		double iAtV0 = saturationCurrentAmps * (Math.exp(v0 / vt) - 1);
-		double geq = (saturationCurrentAmps / vt) * Math.exp(v0 / vt);
+		double geq = smallSignalConductance();
 		double ieq = iAtV0 - geq * v0;
 		circuit.stampConductance(mat, a, b, geq);
 		circuit.stampCurrentSource(z, a, b, ieq);
@@ -44,5 +66,14 @@ public class Diode implements Element {
 	@Override
 	public void updateState(Circuit circuit, double dt) {
 		vPrev = circuit.getVoltage(a) - circuit.getVoltage(b);
+	}
+
+	/** AC case: a diode has no single fixed impedance - it's linearized about its DC operating
+	 *  point into a small-signal resistance {@code r_d = 1/(dI/dV)}, the classic
+	 *  {@code r_d = V_T/I_D} diode small-signal model, reusing exactly the same operating point
+	 *  and conductance the transient companion stamp above already computes each tick. */
+	@Override
+	public void stampAc(AcCircuit circuit, Complex[][] mat, Complex[] z, double omega) {
+		circuit.stampAdmittance(mat, a, b, Complex.real(smallSignalConductance()));
 	}
 }

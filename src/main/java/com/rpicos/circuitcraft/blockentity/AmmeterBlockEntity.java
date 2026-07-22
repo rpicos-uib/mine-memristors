@@ -1,6 +1,8 @@
 package com.rpicos.circuitcraft.blockentity;
 
 import com.rpicos.circuitcraft.ModBlockEntities;
+import com.rpicos.circuitcraft.sim.AcCircuit;
+import com.rpicos.circuitcraft.sim.AcVoltageSource;
 import com.rpicos.circuitcraft.sim.Circuit;
 import com.rpicos.circuitcraft.sim.VoltageSource;
 import com.rpicos.circuitcraft.sim.Waveform;
@@ -9,7 +11,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 /** A 0V voltage source in series - electrically an ideal wire, giving an exact branch-current
  *  reading with no series resistance to distort the circuit it's measuring. */
-public class AmmeterBlockEntity extends ComponentBlockEntity {
+public class AmmeterBlockEntity extends ComponentBlockEntity implements AcStampable {
 
 	private VoltageSource live;
 
@@ -27,6 +29,13 @@ public class AmmeterBlockEntity extends ComponentBlockEntity {
 		live = new VoltageSource(nodeA, nodeB, Waveform.dc(0));
 		circuit.add(live);
 		bindNodes(circuit, nodeA, nodeB);
+	}
+
+	@Override
+	public void addToAcCircuit(AcCircuit circuit, int nodeA, int nodeB) {
+		// Still a 0V source in AC, exactly as in the transient case - an ideal ammeter is already
+		// electrically a wire, so there's no separate "silenced" case to handle here.
+		circuit.add(AcVoltageSource.zero(nodeA, nodeB));
 	}
 
 	@Override

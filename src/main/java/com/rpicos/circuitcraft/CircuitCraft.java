@@ -2,6 +2,9 @@ package com.rpicos.circuitcraft;
 
 import com.rpicos.circuitcraft.blockentity.NetworkBlockEntity;
 import com.rpicos.circuitcraft.blockentity.ValueEditable;
+import com.rpicos.circuitcraft.network.AcBodePayload;
+import com.rpicos.circuitcraft.network.AcHintPayload;
+import com.rpicos.circuitcraft.network.AcProbeManager;
 import com.rpicos.circuitcraft.network.CircuitNetworkManager;
 import com.rpicos.circuitcraft.network.ComponentValueUpdatePayload;
 import com.rpicos.circuitcraft.network.OpenValueEditorPayload;
@@ -40,6 +43,8 @@ public class CircuitCraft implements ModInitializer {
 		PayloadTypeRegistry.clientboundPlay().register(XyProbeDataPayload.TYPE, XyProbeDataPayload.STREAM_CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(OpenValueEditorPayload.TYPE, OpenValueEditorPayload.STREAM_CODEC);
 		PayloadTypeRegistry.serverboundPlay().register(ComponentValueUpdatePayload.TYPE, ComponentValueUpdatePayload.STREAM_CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(AcHintPayload.TYPE, AcHintPayload.STREAM_CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(AcBodePayload.TYPE, AcBodePayload.STREAM_CODEC);
 
 		ServerPlayNetworking.registerGlobalReceiver(ComponentValueUpdatePayload.TYPE, (payload, context) -> {
 			ServerLevel level = context.player().level();
@@ -66,6 +71,7 @@ public class CircuitCraft implements ModInitializer {
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
 			ProbeWatchManager.clear(handler.getPlayer().getUUID());
 			XyProbeManager.clear(handler.getPlayer().getUUID());
+			AcProbeManager.clear(handler.getPlayer().getUUID());
 		});
 
 		ServerTickEvents.END_LEVEL_TICK.register(level -> {

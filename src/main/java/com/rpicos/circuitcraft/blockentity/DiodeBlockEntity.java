@@ -1,6 +1,7 @@
 package com.rpicos.circuitcraft.blockentity;
 
 import com.rpicos.circuitcraft.ModBlockEntities;
+import com.rpicos.circuitcraft.sim.AcCircuit;
 import com.rpicos.circuitcraft.sim.Circuit;
 import com.rpicos.circuitcraft.sim.Diode;
 import net.minecraft.core.BlockPos;
@@ -9,7 +10,7 @@ import net.minecraft.world.level.block.state.BlockState;
 /** The lead facing the direction the player looked when placing it (terminal A) is the anode;
  *  the opposite lead (terminal B) is the cathode - current flows readily from anode to cathode
  *  once the forward voltage is exceeded, and is (almost) blocked in reverse. */
-public class DiodeBlockEntity extends ComponentBlockEntity {
+public class DiodeBlockEntity extends ComponentBlockEntity implements AcStampable {
 
 	private record Preset(String name, double saturationCurrentAmps, double idealityFactor) {
 	}
@@ -40,6 +41,15 @@ public class DiodeBlockEntity extends ComponentBlockEntity {
 		live = new Diode(nodeA, nodeB, preset.saturationCurrentAmps(), preset.idealityFactor());
 		circuit.add(live);
 		bindNodes(circuit, nodeA, nodeB);
+	}
+
+	@Override
+	public void addToAcCircuit(AcCircuit circuit, int nodeA, int nodeB) {
+		// Linearizes about the live diode's actual last-solved operating point (rather than an
+		// unbiased 0V guess) if one exists yet, exactly as the transient companion stamp does.
+		Preset preset = PRESETS[presetIndex];
+		double operatingPointVolts = live != null ? live.lastVoltage() : 0;
+		circuit.add(new Diode(nodeA, nodeB, preset.saturationCurrentAmps(), preset.idealityFactor(), operatingPointVolts));
 	}
 
 	@Override

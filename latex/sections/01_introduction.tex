@@ -29,9 +29,10 @@ This paper describes CircuitCraft~\cite{picos2026circuitcraft}, a modification
 (``mod'') for the Fabric mod loader, released as free and open-source software under the MIT
 license, that adds a complete set of analog circuit components to Minecraft: resistors,
 capacitors, inductors, memristors, diodes, an ideal operational amplifier, DC and
-time-varying voltage sources, an ammeter, wire, an explicit ground-reference block, and a
-pair of handheld oscilloscope probes -- one a multi-channel time-domain probe, the other an
-X-Y probe plotting one pinned signal against another. Placing and wiring these blocks
+time-varying voltage sources, a dedicated AC (small-signal) source, an ammeter, wire, an
+explicit ground-reference block, and three handheld oscilloscope probes -- a multi-channel
+time-domain probe, an X-Y probe plotting one pinned signal against another, and a Bode-plot
+probe sweeping the AC source across a configurable frequency range. Placing and wiring these blocks
 together constructs an actual circuit topology within the game world; a modified nodal
 analysis solver, structurally identical to the technique used by SPICE-family
 simulators~\cite{ho1975mna}, is re-solved once per game tick (20~Hz) to drive every block's
@@ -57,7 +58,10 @@ including the explicit, player-placeable ground reference that allows the notion
 ``ground'' to be taught rather than assumed. Section~\ref{sec:control-network} describes a
 second, independent network, unrelated to the electrical topology, by which a voltage or
 frequency module propagates a shared amplitude or frequency setting to one or more function
-generators. Section~\ref{sec:pedagogy} discusses the
+generators. Section~\ref{sec:ac-analysis} describes a second, complex-valued solver used for
+AC (small-signal) analysis, including a two-pole frequency-dependent gain model for the
+op-amp and the Bode-plot probe that sweeps a dedicated AC source across a configurable
+frequency range. Section~\ref{sec:pedagogy} discusses the
 pedagogical rationale underlying each design choice, and Section~\ref{sec:experiments} gives
 five complete, reproducible worked circuits -- a voltage divider, an RC and an RLC step
 response, a diode rectifier, and a memristor hysteresis-loop measurement -- built directly

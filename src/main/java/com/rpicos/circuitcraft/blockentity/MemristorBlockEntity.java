@@ -1,6 +1,7 @@
 package com.rpicos.circuitcraft.blockentity;
 
 import com.rpicos.circuitcraft.ModBlockEntities;
+import com.rpicos.circuitcraft.sim.AcCircuit;
 import com.rpicos.circuitcraft.sim.Circuit;
 import com.rpicos.circuitcraft.sim.Memristor;
 import net.minecraft.core.BlockPos;
@@ -8,7 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
 
-public class MemristorBlockEntity extends ComponentBlockEntity implements ValueEditable {
+public class MemristorBlockEntity extends ComponentBlockEntity implements ValueEditable, AcStampable {
 
 	private static final double MIN_RON = 10;
 	private static final double MAX_RON = 1_000;
@@ -64,6 +65,16 @@ public class MemristorBlockEntity extends ComponentBlockEntity implements ValueE
 		live = new Memristor(nodeA, nodeB, ronOhms, roffOhms, qMax, savedFraction);
 		circuit.add(live);
 		bindNodes(circuit, nodeA, nodeB);
+	}
+
+	@Override
+	public void addToAcCircuit(AcCircuit circuit, int nodeA, int nodeB) {
+		// For now, the memristor's AC case is simply a fixed resistor frozen at whatever
+		// resistance it currently holds (see Memristor.stampAc) - constructing a fresh instance
+		// at the same state fraction reproduces that same resistance without needing to touch the
+		// live transient instance at all.
+		double fraction = live != null ? live.stateFraction() : savedFraction;
+		circuit.add(new Memristor(nodeA, nodeB, ronOhms, roffOhms, qMax, fraction));
 	}
 
 	@Override

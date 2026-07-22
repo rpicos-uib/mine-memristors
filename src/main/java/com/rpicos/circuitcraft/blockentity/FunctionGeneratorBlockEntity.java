@@ -1,13 +1,15 @@
 package com.rpicos.circuitcraft.blockentity;
 
 import com.rpicos.circuitcraft.ModBlockEntities;
+import com.rpicos.circuitcraft.sim.AcCircuit;
+import com.rpicos.circuitcraft.sim.AcVoltageSource;
 import com.rpicos.circuitcraft.sim.Circuit;
 import com.rpicos.circuitcraft.sim.VoltageSource;
 import com.rpicos.circuitcraft.sim.Waveform;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class FunctionGeneratorBlockEntity extends ComponentBlockEntity {
+public class FunctionGeneratorBlockEntity extends ComponentBlockEntity implements AcStampable {
 
 	private enum Kind {SINE, SQUARE, TRIANGLE}
 
@@ -75,6 +77,12 @@ public class FunctionGeneratorBlockEntity extends ComponentBlockEntity {
 		};
 		live = new VoltageSource(nodeA, nodeB, waveform);
 		circuit.add(live);
+	}
+
+	@Override
+	public void addToAcCircuit(AcCircuit circuit, int nodeA, int nodeB) {
+		// Same "voltage sources go to zero" convention as PowerSupplyBlockEntity.
+		circuit.add(AcVoltageSource.zero(nodeA, nodeB));
 	}
 
 	@Override

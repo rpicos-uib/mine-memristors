@@ -1,6 +1,8 @@
 package com.rpicos.circuitcraft.blockentity;
 
 import com.rpicos.circuitcraft.ModBlockEntities;
+import com.rpicos.circuitcraft.sim.AcCircuit;
+import com.rpicos.circuitcraft.sim.AcVoltageSource;
 import com.rpicos.circuitcraft.sim.Circuit;
 import com.rpicos.circuitcraft.sim.VoltageSource;
 import com.rpicos.circuitcraft.sim.Waveform;
@@ -9,7 +11,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
 
-public class PowerSupplyBlockEntity extends ComponentBlockEntity implements ValueEditable {
+public class PowerSupplyBlockEntity extends ComponentBlockEntity implements ValueEditable, AcStampable {
 
 	private static final double[] PRESETS_VOLTS = {1.5, 5, 9, 12, 24};
 
@@ -61,6 +63,14 @@ public class PowerSupplyBlockEntity extends ComponentBlockEntity implements Valu
 		}
 		live = new VoltageSource(nodeA, nodeB, Waveform.dc(voltageVolts));
 		circuit.add(live);
+	}
+
+	@Override
+	public void addToAcCircuit(AcCircuit circuit, int nodeA, int nodeB) {
+		// The usual small-signal convention: every independent voltage source other than the one
+		// designated AC source is stamped at exactly 0V (a short) during an AC sweep, regardless
+		// of its own DC value or (deliberately, as a simplification) its redstone on/off state.
+		circuit.add(AcVoltageSource.zero(nodeA, nodeB));
 	}
 
 	@Override

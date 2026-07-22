@@ -1,7 +1,7 @@
 package com.rpicos.circuitcraft.sim;
 
 /** Trapezoidal-integration companion model: a conductance in parallel with a history current source. */
-public class Capacitor implements Element {
+public class Capacitor implements Element, AcElement {
 	public final int a, b;
 	public double farads;
 
@@ -37,5 +37,14 @@ public class Capacitor implements Element {
 
 	public double voltage() {
 		return vPrev;
+	}
+
+	/** AC case: a capacitor's impedance is {@code Z = 1/(j*omega*C)}, so its admittance is
+	 *  {@code Y = j*omega*C} directly - no companion history term, since AC analysis solves the
+	 *  steady-state sinusoidal response at a single frequency rather than integrating forward
+	 *  through time. */
+	@Override
+	public void stampAc(AcCircuit circuit, Complex[][] mat, Complex[] z, double omega) {
+		circuit.stampAdmittance(mat, a, b, new Complex(0, omega * farads));
 	}
 }

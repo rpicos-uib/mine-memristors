@@ -1,6 +1,7 @@
 package com.rpicos.circuitcraft.blockentity;
 
 import com.rpicos.circuitcraft.ModBlockEntities;
+import com.rpicos.circuitcraft.sim.AcCircuit;
 import com.rpicos.circuitcraft.sim.Circuit;
 import com.rpicos.circuitcraft.sim.Inductor;
 import net.minecraft.core.BlockPos;
@@ -8,7 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
 
-public class InductorBlockEntity extends ComponentBlockEntity implements ValueEditable {
+public class InductorBlockEntity extends ComponentBlockEntity implements ValueEditable, AcStampable {
 
 	// Henries tuned for Minecraft's tick timescale, not real-world inductor ratings - large
 	// values are needed for an RL time constant that's actually visible across a few ticks.
@@ -44,6 +45,11 @@ public class InductorBlockEntity extends ComponentBlockEntity implements ValueEd
 		live = new Inductor(nodeA, nodeB, inductanceHenries);
 		circuit.add(live);
 		bindNodes(circuit, nodeA, nodeB);
+	}
+
+	@Override
+	public void addToAcCircuit(AcCircuit circuit, int nodeA, int nodeB) {
+		circuit.add(new Inductor(nodeA, nodeB, inductanceHenries));
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package com.rpicos.circuitcraft;
 
+import com.rpicos.circuitcraft.blockentity.AcSourceBlockEntity;
 import com.rpicos.circuitcraft.blockentity.AmmeterBlockEntity;
 import com.rpicos.circuitcraft.blockentity.CapacitorBlockEntity;
 import com.rpicos.circuitcraft.blockentity.DiodeBlockEntity;
@@ -50,6 +51,8 @@ public final class ModBlockEntities {
 			register("diode", DiodeBlockEntity::new, ModBlocks.DIODE);
 	public static final BlockEntityType<OpAmpBlockEntity> OP_AMP =
 			register("op_amp", OpAmpBlockEntity::new, ModBlocks.OP_AMP);
+	public static final BlockEntityType<AcSourceBlockEntity> AC_SOURCE =
+			register("ac_source", AcSourceBlockEntity::new, ModBlocks.AC_SOURCE);
 
 	private static <T extends BlockEntity> BlockEntityType<T> register(
 			String path, BlockEntityType.BlockEntitySupplier<T> factory, Block block) {

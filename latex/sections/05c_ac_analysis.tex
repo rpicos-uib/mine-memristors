@@ -1,0 +1,116 @@
+\section{AC (Small-Signal) Analysis}
+\label{sec:ac-analysis}
+
+\subsection{Motivation and formulation}
+
+The solver described in Section~\ref{sec:circuit-solver} answers a transient question: given a
+circuit's exact component values and a starting state, what does every voltage and current do
+over time? A second, complementary question -- how does a circuit respond to a sinusoidal
+excitation as a function of frequency alone, independent of any particular starting transient --
+is answered instead by AC (small-signal) analysis, the technique underlying every Bode plot in
+an electronics textbook. Rather than stepping forward in time, AC analysis assumes every
+node voltage and branch current is already varying sinusoidally at a single angular frequency
+$\omega$ and solves directly for each phasor's complex amplitude, using exactly the same
+node/branch structure as the transient MNA formulation but with every real-valued conductance,
+capacitance-derived companion model, and source replaced by its frequency-domain counterpart.
+
+CircuitCraft implements this as an entirely separate solver, \texttt{AcCircuit}, alongside
+\texttt{Circuit} rather than as a mode of it: the two share the same node-numbering topology
+(Section~\ref{sec:architecture}'s union--find partition is computed once and reused by both,
+guaranteeing they agree on which physical position corresponds to which node index) but operate
+on disjoint representations -- real-valued matrices advanced tick by tick for the transient
+solver, complex-valued matrices solved fresh at each swept frequency for the AC solver -- since
+attempting to unify them behind one generic numeric representation would have complicated both
+without a compensating benefit.
+
+Following the standard small-signal convention, every independent voltage source in the network
+\emph{other than} the one component designated as the AC excitation (Section~\ref{sec:ac-source})
+is stamped at exactly zero volts -- an ideal short -- for the duration of the sweep, regardless of
+that source's own DC value or redstone-activated state. This isolates the frequency response to
+the one signal path actually being characterized, the same simplification a bench engineer makes
+by treating every other supply rail as an AC ground when measuring a single stage's response.
+
+\subsection{The AC case for each element}
+
+Every element already described in Section~\ref{sec:circuit-solver} gains a second stamping
+method for the AC solver, given the angular frequency $\omega$ directly rather than a timestep:
+\begin{itemize}
+\item \textbf{Resistor:} impedance is frequency-independent, $Z = R$, so the AC admittance is
+simply the same real conductance $1/R$ already used for the transient stamp.
+\item \textbf{Capacitor:} $Z = 1/(j\omega C)$, giving a purely imaginary admittance
+$Y = j\omega C$ -- no companion history term is needed at all, since AC analysis solves the
+steady-state response directly rather than integrating forward through time.
+\item \textbf{Inductor:} $Z = j\omega L$, the dual of the capacitor's case, giving
+$Y = 1/(j\omega L)$.
+\item \textbf{Diode:} linearized about the same last-solved operating point voltage the
+transient companion stamp already tracks (Section~\ref{sec:circuit-solver}), into the classic
+small-signal diode resistance $r_d = 1/(\mathrm{d}I/\mathrm{d}V) = V_T/I_D$ -- the same
+conductance value the transient stamp computes each tick, simply reused as a real admittance
+rather than paired with a Norton current source.
+\item \textbf{Memristor:} for the moment, treated as a plain resistor frozen at whatever
+resistance $R(q)$ it currently holds, with no frequency dependence of its own modeled at all.
+This is a deliberate simplification rather than an oversight (Section~\ref{sec:limitations}) --
+a genuine small-signal memristor model would need its own frequency response derived from the
+charge-controlled state equation, which is left as future work.
+\end{itemize}
+Each of these was checked directly against a closed-form reference during development
+(Section~\ref{sec:validation}): a resistive divider's response is exactly flat across many
+decades of frequency; a series RC low-pass reproduces the textbook $-3$~dB, $-45^\circ$ point at
+its cutoff frequency $f_c = 1/(2\pi RC)$ and the correct asymptotic $-20$~dB/decade rolloff well
+above it; the dual RC high-pass reproduces the complementary $-3$~dB, $+45^\circ$ point; and an
+RL divider reproduces the same $-3$~dB behavior at the frequency where the inductor's impedance
+magnitude equals the series resistance.
+
+\subsection{The AC Source}
+\label{sec:ac-source}
+
+A new two-terminal component, wired like any other (Section~\ref{sec:minecraft-mechanics}),
+supplies the sweep's excitation. Unlike every other adjustable component in the mod, none of its
+three parameters -- amplitude, and the swept frequency range's minimum and maximum -- are set by
+right-click preset cycling: a frequency \emph{range} is not the kind of quantity a short, fixed
+preset list represents well, so all three are instead set directly through the shift-right-click
+value-editor screen (a sign-style text-entry interface, clamped both client- and server-side to
+sensible bounds for each parameter). In the
+ordinary transient/DC simulation, the AC Source contributes nothing but a 0~V source -- electrically
+a plain wire, exactly like the Ammeter (Section~\ref{sec:architecture}) -- so a circuit built
+around one behaves completely normally when nobody is actively running a sweep; its real behavior
+appears only through the dedicated probe described next.
+
+\subsection{The two-pole op-amp AC model}
+
+The ideal op-amp of Section~\ref{sec:circuit-solver} is, by construction, an infinite-bandwidth
+nullor -- an exact model at the frequencies the transient solver's own worked experiments operate
+at, but one that could never exhibit the gain rolloff and phase shift a Bode plot exists to show.
+The AC solver therefore replaces it with a standard two-pole open-loop gain model,
+\begin{equation}
+A(s) = \frac{A_0}{\left(1 + \dfrac{s}{\omega_{p1}}\right)\left(1 + \dfrac{s}{\omega_{p2}}\right)},
+\qquad s = j\omega,
+\end{equation}
+the textbook first-order approximation of a real operational amplifier's frequency response: a
+dominant pole from internal frequency compensation, followed by a second, much higher, non-dominant
+pole from a secondary internal stage. Fixed, illustrative values are used -- $A_0 = 10^5$ (100~dB
+of open-loop DC gain), $f_{p1} = 20$~Hz, $f_{p2} = 3$~MHz -- chosen to make both the dominant
+rolloff and the second pole's effect on phase margin visible within a single sweep spanning a few
+decades either side, rather than to match any specific real part number. The op-amp remains
+modeled the same structural way as its ideal DC/transient counterpart: a voltage-controlled
+voltage source with its own branch-current unknown, infinite input impedance, and zero output
+impedance, differing only in that the constraint row's coefficient is the complex, frequency-dependent
+$A(s)$ rather than a fixed value of~1. This was verified directly: the open-loop gain at a very
+low sweep frequency matches $A_0$ to within numerical precision, and the gain measured exactly at
+$f_{p1}$ is $3.01$~dB below that DC value, the defining property of a pole.
+
+\subsection{The AC probe and Bode plot}
+
+A second Bode-plot-dedicated probe item captures the specifically two-step interaction this
+analysis requires, distinct from every other probe in the mod: right-clicking an AC Source first
+only pins it as the sweep's excitation and prints a hint prompting the next step, since nothing
+can be computed yet without also knowing which point to observe; right-clicking a second,
+different position afterward -- any wired component, wire, or ground block -- runs the sweep and
+displays the result. The source stays pinned after that second click, so a player can probe
+several different points against the same excitation without re-pinning it each time; only a
+shift-right-click, or clicking a different AC Source block, changes it. The sweep itself
+evaluates 60 log-spaced frequencies across the pinned source's configured range, solving a fresh
+\texttt{AcCircuit} at each one and reporting the magnitude (in dB) and phase (in degrees) of the
+signal position's voltage relative to the source's own amplitude -- the standard definition of a
+transfer function -- rendered as two stacked graphs against a shared log-frequency axis, the
+same layout convention an oscilloscope's own Bode-plot mode uses.

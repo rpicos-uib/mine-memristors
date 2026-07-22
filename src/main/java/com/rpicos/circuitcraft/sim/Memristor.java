@@ -9,7 +9,7 @@ package com.rpicos.circuitcraft.sim;
  * implicitly. That lag is negligible at the small timesteps this simulator runs at, but means
  * very large dt values can make the memristor's response ring or lag visibly.
  */
-public class Memristor implements Element {
+public class Memristor implements Element, AcElement {
 	public final int a, b;
 	public double ron;
 	public double roff;
@@ -55,5 +55,15 @@ public class Memristor implements Element {
 
 	public double stateFraction() {
 		return q / qMax;
+	}
+
+	/** AC case: for now, the memristor's frequency-dependent behavior is not modeled at all - its
+	 *  small-signal impedance is simply its current (charge-dependent) resistance, exactly as if
+	 *  it were a plain resistor frozen at whatever value {@link #resistance()} currently holds.
+	 *  A genuine AC memristor model would need its own frequency response derived from the
+	 *  charge-controlled state equation; this is a deliberate simplification, not an oversight. */
+	@Override
+	public void stampAc(AcCircuit circuit, Complex[][] mat, Complex[] z, double omega) {
+		circuit.stampAdmittance(mat, a, b, Complex.real(1.0 / rNow));
 	}
 }
