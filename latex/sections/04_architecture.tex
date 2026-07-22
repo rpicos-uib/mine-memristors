@@ -89,9 +89,22 @@ after the fact.
 A second, independent probe item allows a player to pin exactly two channels and view them
 plotted against one another rather than against time: one channel's voltage on the
 horizontal axis, the other's on the vertical axis, the same X-Y display mode a real bench
-oscilloscope provides. Both axes share a single scale, set by the larger of the two
-channels' peak magnitude, so that the resulting shape's true aspect ratio is preserved --
-for instance, two equal-amplitude sinusoids in quadrature trace a circle rather than a
-distorted ellipse. This mode is pedagogically distinct from the time-domain probe: it makes
-the relative phase and amplitude between two signals directly visible as a shape, rather
-than requiring a player to compare two scrolling traces by eye.
+oscilloscope provides. Pinning is append-only with a two-slot cap: whichever position was
+just right-clicked -- new or already pinned -- always becomes the more recently pinned of
+the two, which unconditionally assigns it to the vertical (Y) axis, demoting the previous Y
+to X and, if both slots were already occupied, evicting the previous X entirely. Because this
+holds regardless of what is clicked, the HUD renders the Y-axis reading in bold as a
+permanent reminder of which axis the next click will set, the X-Y counterpart to the
+time-domain probe's next-evicted-channel highlight described above.
+
+Each axis is scaled independently to its own channel's peak magnitude, rather than sharing a
+single scale, so that two signals of very different size -- a few volts on one channel,
+millivolts on the other -- each still occupy the plot's full range instead of one being
+compressed to a sliver by the other's larger scale; the two independent full-scale values are
+displayed alongside each axis's instantaneous reading. This does not sacrifice the shared-scale
+case's original benefit: a shape only has a distorted aspect ratio when the two channels'
+peak magnitudes genuinely differ, so two equal-amplitude sinusoids in quadrature still trace
+an actual circle rather than a stretched ellipse, since their independently computed scales
+necessarily coincide. This mode is pedagogically distinct from the time-domain probe: it
+makes the relative phase and amplitude between two signals directly visible as a shape,
+rather than requiring a player to compare two scrolling traces by eye.

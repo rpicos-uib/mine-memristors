@@ -8,6 +8,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -18,9 +20,16 @@ import java.util.List;
  * position, so both can be held and shown at once without overlapping): a square plot of the Y
  * channel's voltage against the X channel's voltage, the same Lissajous-figure display mode a
  * real bench oscilloscope's X-Y mode produces, instead of either channel plotted against time.
- * Both axes share one scale (the larger of the two channels' peak magnitude) so the plotted
- * shape's actual aspect ratio is preserved - a 90-degree phase-shifted, equal-amplitude pair
- * traces a circle, not a stretched ellipse.
+ * Each axis is scaled independently to its own channel's peak magnitude, so two very
+ * differently sized signals (a few volts on one channel, millivolts on the other) each still
+ * use the plot's full range rather than one being squashed flat by a shared scale; the
+ * trade-off is that a shape only has its true aspect ratio (an equal-amplitude, 90-degree
+ * phase-shifted pair tracing an actual circle) when the two channels' peaks happen to match -
+ * which they still do whenever amplitudes are in fact equal, since the two independent scales
+ * then coincide. The Y label is always rendered bold: {@link com.rpicos.minememristors.network.XyProbeManager}
+ * always appends the just-pinned position to the end of its 2-slot list, so the block a player
+ * is about to right-click - whether it is brand new, currently X, or currently Y - always
+ * becomes (or remains) the Y channel once pinned, and the label reflects that unconditionally.
  */
 public class XyOscilloscopeHud implements HudElement {
 
@@ -61,25 +70,33 @@ public class XyOscilloscopeHud implements HudElement {
 
 		List<Float> xHistory = data.xHistory();
 		List<Float> yHistory = data.yHistory();
-		float maxAbs = 0.001f;
+		float maxAbsX = 0.001f;
 		for (float v : xHistory) {
-			maxAbs = Math.max(maxAbs, Math.abs(v));
+			maxAbsX = Math.max(maxAbsX, Math.abs(v));
 		}
+		float maxAbsY = 0.001f;
 		for (float v : yHistory) {
-			maxAbs = Math.max(maxAbs, Math.abs(v));
+			maxAbsY = Math.max(maxAbsY, Math.abs(v));
 		}
 
 		int n = Math.min(xHistory.size(), yHistory.size());
 		float half = PLOT_SIZE / 2f;
 		for (int i = 0; i < n; i++) {
-			int px = plotCenterX + Math.round(xHistory.get(i) / maxAbs * half);
-			int py = plotCenterY - Math.round(yHistory.get(i) / maxAbs * half);
+			int px = plotCenterX + Math.round(xHistory.get(i) / maxAbsX * half);
+			int py = plotCenterY - Math.round(yHistory.get(i) / maxAbsY * half);
 			extractor.fill(px, py, px + 1, py + 1, TRACE_COLOR);
 		}
 
 		int textY = plotY0 + PLOT_SIZE + 4;
-		extractor.text(font, String.format("X: %.2fV  %s", data.xVoltage(), data.xSummary()), x0 + 4, textY, 0xFFDDDDDD, false);
-		extractor.text(font, String.format("Y: %.2fV  %s", data.yVoltage(), data.ySummary()), x0 + 4, textY + 10, 0xFFDDDDDD, false);
+		// The next right-click always pins (or re-pins) the Y channel - see the class doc - so Y
+		// is bolded unconditionally to show the player which axis their next click will set.
+		Component xLabel = Component.literal(
+				String.format("X: %.2fV  %s  (±%.2fV)", data.xVoltage(), data.xSummary(), maxAbsX));
+		Component yLabel = Component.literal(
+				String.format("Y: %.2fV  %s  (±%.2fV)", data.yVoltage(), data.ySummary(), maxAbsY))
+				.withStyle(Style.EMPTY.withBold(true));
+		extractor.text(font, xLabel, x0 + 4, textY, 0xFFDDDDDD, false);
+		extractor.text(font, yLabel, x0 + 4, textY + 10, 0xFFDDDDDD, false);
 	}
 
 	private static boolean isHoldingXyProbe(Player player) {
