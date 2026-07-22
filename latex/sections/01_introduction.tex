@@ -28,17 +28,20 @@ continuous time.
 This paper describes Mine Memristors~\cite{picos2026minememristors}, a modification
 (``mod'') for the Fabric mod loader, released as free and open-source software under the MIT
 license, that adds a complete set of analog circuit components to Minecraft: resistors,
-capacitors, inductors, memristors, DC and time-varying voltage sources, an ammeter, wire, an
-explicit ground-reference block, and a handheld multi-channel oscilloscope probe. Placing
-and wiring these blocks together constructs an actual circuit topology within the game
-world; a modified nodal analysis solver, structurally identical to the technique used by
-SPICE-family simulators~\cite{ho1975mna}, is re-solved once per game tick (20~Hz) to drive
-every block's displayed voltage, current, and internal state. No behavior in the mod is a
-scripted approximation of the underlying physics: an RC charging curve resembles an RC
-charging curve because the underlying linear system is actually solved, and a memristor's
-resistance drifts according to the same charge-controlled ordinary differential equation
-used in the original HP linear-drift model~\cite{strukov2008missing}, rather than a lookup
-table tuned to appear plausible.
+capacitors, inductors, memristors, diodes, an ideal operational amplifier, DC and
+time-varying voltage sources, an ammeter, wire, an explicit ground-reference block, and a
+pair of handheld oscilloscope probes -- one a multi-channel time-domain probe, the other an
+X-Y probe plotting one pinned signal against another. Placing and wiring these blocks
+together constructs an actual circuit topology within the game world; a modified nodal
+analysis solver, structurally identical to the technique used by SPICE-family
+simulators~\cite{ho1975mna}, is re-solved once per game tick (20~Hz) to drive every block's
+displayed voltage, current, and internal state. No behavior in the mod is a scripted
+approximation of the underlying physics: an RC charging curve resembles an RC charging curve
+because the underlying linear system is actually solved, a diode's current follows the same
+linearized Shockley relation~\cite{shockley1949diode} a SPICE-family simulator would use, and
+a memristor's resistance drifts according to the same charge-controlled ordinary differential
+equation used in the original HP linear-drift model~\cite{strukov2008missing}, rather than a
+lookup table tuned to appear plausible.
 
 The remainder of this paper is organized as follows. Section~\ref{sec:related-work}
 situates Mine Memristors relative to existing circuit simulators, the literature on

@@ -8,10 +8,16 @@ responses, and the memristor's charge-controlled ordinary differential equation 
 in closed form for a constant applied voltage -- and agreed with those references to within
 approximately 1\%, consistent with the timestep employed (one Minecraft tick,
 $h = 1/20$~s) and the known truncation error of the trapezoidal-integration companion
-models. Because the solver package has no dependency on any Minecraft class, this class of
-check can be executed as a plain Java program requiring no game instance, decompiled game
-code, or build tooling, which made it practical to re-verify every element in isolation
-before integrating it with the remainder of the mod.
+models. The diode and ideal op-amp introduced in Section~\ref{sec:circuit-solver} were
+checked the same way: a voltage-follower configuration of the op-amp reproduced
+$v_{out} = v_{in}$ to floating-point precision, a non-inverting amplifier with a
+$1\,\mathrm{k}\Omega$/$2\,\mathrm{k}\Omega$ feedback divider matched the textbook gain
+$1 + R_2/R_1 = 3$ to within approximately one part per million, and the silicon diode preset
+converged to a forward drop of approximately $0.69$~V at approximately $4.3$~mA, within the
+range expected of a real silicon diode. Because the solver package has no dependency on any
+Minecraft class, this class of check can be executed as a plain Java program requiring no
+game instance, decompiled game code, or build tooling, which made it practical to re-verify
+every element in isolation before integrating it with the remainder of the mod.
 
 Because the mod targets a version of Minecraft (26.2) released after the training data
 cutoff of the large language model used to assist in its development, and because that

@@ -63,6 +63,47 @@ notably, deliberately preserved across a network topology rebuild
 (Section~\ref{sec:limitations} discusses why the remaining reactive elements are not yet
 afforded the same treatment).
 
+\subsection{The diode}
+
+The diode is the mod's first nonlinear element and is stamped using the same companion-model
+linearization technique general-purpose circuit simulators use for
+it~\cite{massobrio1993spice}: rather than iterating a Newton-Raphson correction to
+convergence within a single game tick, the diode's current--voltage relation, the Shockley
+equation~\cite{shockley1949diode}
+\begin{equation}
+i(v) = I_S\left(e^{v/V_T} - 1\right),
+\end{equation}
+is linearized about the terminal voltage the diode converged to on the \emph{previous} tick,
+producing a companion conductance $G_{eq} = \mathrm{d}i/\mathrm{d}v$ evaluated at that
+voltage and a parallel current source correcting for the linearization error, exactly the
+``reuse the last tick's converged state instead of iterating within a tick'' approach the
+trapezoidal reactive-element models above already use. Three presets (silicon, germanium,
+and a red LED) fix $I_S$ and $V_T$ to values reproducing roughly the textbook forward voltage
+of each diode family. Because the diode remains a two-terminal element, it fits the existing
+component block-entity machinery unchanged.
+
+\subsection{The ideal operational amplifier}
+
+The ideal op-amp is the mod's first three-terminal component and is modeled the standard MNA
+way for an ideal, infinite-gain amplifier: as a \emph{nullor}~\cite{chualin1975nullor}, an
+element whose input port enforces $v_{+} = v_{-}$ while drawing no current at either input
+node, and whose output port supplies whatever current is required to satisfy that
+constraint. Like an independent voltage source, it therefore contributes one auxiliary
+branch-current unknown $j$ to the MNA system and one constraint row,
+\begin{equation}
+v_{+} - v_{-} = 0,
+\end{equation}
+but unlike a voltage source, that branch current is injected only at the output node rather
+than symmetrically at the two nodes the constraint row references -- the constraint
+``listens'' at the input pair while the current it produces is ``delivered'' at a third,
+unrelated node. This asymmetry, absent from every other stamped element in the solver,
+required its own stamping loop in \texttt{Circuit.step()} rather than reuse of the voltage
+source's. Two configurations were used to verify the stamp: a unity-gain voltage follower
+(output tied directly to the inverting input) reproduces $v_{out} = v_{in}$ to
+floating-point precision, and a non-inverting amplifier with a resistive feedback divider
+matches the textbook gain $1 + R_2/R_1$ to within numerical roundoff
+(Section~\ref{sec:validation}).
+
 \subsection{An explicit, player-placed ground reference}
 
 MNA's ground node is, by construction, always present as a mathematical reference: node~0

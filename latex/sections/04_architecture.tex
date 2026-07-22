@@ -36,12 +36,12 @@ it.}
 
 \subsection{Components and topology}
 
-Every two-terminal component (resistor, capacitor, inductor, memristor, the two voltage
-sources, and an ammeter) occupies a single block, oriented along the horizontal or vertical
-axis the player was facing when it was placed; its two electrical leads are its front and
-back faces along that axis, and its other four faces are electrically insulated. A separate
-wire block conducts on all six faces and has no orientation, and a ground block (see
-Section~\ref{sec:circuit-solver}) behaves identically to wire for topology purposes.
+Every two-terminal component (resistor, capacitor, inductor, memristor, diode, the two
+voltage sources, and an ammeter) occupies a single block, oriented along the horizontal or
+vertical axis the player was facing when it was placed; its two electrical leads are its
+front and back faces along that axis, and its other four faces are electrically insulated. A
+separate wire block conducts on all six faces and has no orientation, and a ground block
+(see Section~\ref{sec:circuit-solver}) behaves identically to wire for topology purposes.
 
 Once per game tick, for each independent group of adjacent, mutually-conductive blocks
 (a ``network''), the mod rebuilds a union--find partition over every block face that
@@ -50,6 +50,16 @@ each resulting partition, and instructs every component in that network to stamp
 into the circuit between its resolved node indices. Figure~\ref{fig:gallery} shows the
 complete set of component and utility blocks available to a player.
 
+The ideal op-amp (Section~\ref{sec:circuit-solver}) is the mod's first component with three
+electrical leads rather than two, which the topology algorithm above accommodates without
+any per-terminal-count branching: the union--find partitioning already keys each block face
+independently on whether the entity it belongs to is a single shared node (as wire and
+ground are) or a distinct lead, so an entity simply exposes as many independently keyed
+leads as it has terminals, and the final node-resolution step reads off however many
+resolved indices that entity declared, whether two or three.
+
+% NOTE (author's note, delete before submission): this screenshot predates the diode,
+% ideal op-amp, and X-Y probe and needs to be retaken in-game to show all fifteen items.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.85\textwidth]{figures/component_gallery.png}
@@ -70,4 +80,20 @@ voltage drop across its two leads (or, for the ammeter, the branch current, reus
 same history and rendering machinery so that current and voltage may be observed side by
 side without a separate ``current channel'' concept); a wire or ground block's trace
 displays its single node's absolute voltage relative to whatever ground reference the
-network possesses, discussed in the following section.
+network possesses, discussed in the following section. Once all three channel slots are
+occupied, the oldest pinned channel is outlined and labeled to show which channel the next
+pin would evict, so a player deciding whether to add a fourth signal can see the consequence
+of that choice before committing to it, rather than discovering which trace disappeared only
+after the fact.
+
+\subsection{The X-Y oscilloscope probe}
+
+A second, independent probe item allows a player to pin exactly two channels and view them
+plotted against one another rather than against time: one channel's voltage on the
+horizontal axis, the other's on the vertical axis, the same X-Y display mode a real bench
+oscilloscope provides. Both axes share a single scale, set by the larger of the two
+channels' peak magnitude, so that the resulting shape's true aspect ratio is preserved --
+for instance, two equal-amplitude sinusoids in quadrature trace a circle rather than a
+distorted ellipse. This mode is pedagogically distinct from the time-domain probe: it makes
+the relative phase and amplitude between two signals directly visible as a shape, rather
+than requiring a player to compare two scrolling traces by eye.
