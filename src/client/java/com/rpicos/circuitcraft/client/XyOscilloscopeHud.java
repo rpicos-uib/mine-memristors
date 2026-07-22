@@ -91,12 +91,12 @@ public class XyOscilloscopeHud implements HudElement {
 		// Full-scale tick labels at each axis's extremes, so the independently-computed X and Y
 		// scales are readable directly off the plot rather than only inferable from the trace.
 		int axisColor = 0xFF9090A8;
-		String xMaxText = String.format("+%.2f", maxAbsX);
-		String xMinText = String.format("-%.2f", maxAbsX);
+		String xMaxText = "+" + SiFormat.magnitude(maxAbsX);
+		String xMinText = "-" + SiFormat.magnitude(maxAbsX);
 		extractor.text(font, xMinText, plotX0 + 1, plotCenterY + 1, axisColor, false);
 		extractor.text(font, xMaxText, plotX0 + PLOT_SIZE - font.width(xMaxText) - 1, plotCenterY + 1, axisColor, false);
-		extractor.text(font, String.format("+%.2f", maxAbsY), plotCenterX + 2, plotY0 + 1, axisColor, false);
-		extractor.text(font, String.format("-%.2f", maxAbsY), plotCenterX + 2, plotY0 + PLOT_SIZE - 9, axisColor, false);
+		extractor.text(font, "+" + SiFormat.magnitude(maxAbsY), plotCenterX + 2, plotY0 + 1, axisColor, false);
+		extractor.text(font, "-" + SiFormat.magnitude(maxAbsY), plotCenterX + 2, plotY0 + PLOT_SIZE - 9, axisColor, false);
 
 		int textY = plotY0 + PLOT_SIZE + 4;
 		Component xLabel = Component.literal(

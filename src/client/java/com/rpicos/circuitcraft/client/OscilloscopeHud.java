@@ -90,8 +90,8 @@ public class OscilloscopeHud implements HudElement {
 		// Full-scale tick labels at the top and bottom of the graph, so the auto-scaled range is
 		// readable directly rather than only inferable from the trace's shape.
 		int axisColor = 0xFF889078;
-		extractor.text(font, String.format("+%.2f", maxAbs), graphX0, graphY0, axisColor, false);
-		extractor.text(font, String.format("-%.2f", maxAbs), graphX0, graphY1 - 8, axisColor, false);
+		extractor.text(font, "+" + SiFormat.magnitude(maxAbs), graphX0, graphY0, axisColor, false);
+		extractor.text(font, "-" + SiFormat.magnitude(maxAbs), graphX0, graphY1 - 8, axisColor, false);
 
 		if (history.size() >= 2) {
 			int n = history.size();
