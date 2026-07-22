@@ -19,7 +19,8 @@ import java.util.List;
  * stacked in the corner, each showing its own scrolling voltage (or, for an ammeter, current)
  * trace - so two or three signals can be watched side by side instead of one at a time. Once all
  * three slots are full, the oldest is outlined in yellow to show which channel a new pin would
- * evict.
+ * evict. Each channel's own auto-scaled full-range value is printed at the top and bottom of its
+ * graph, since every channel is scaled independently to its own history's peak magnitude.
  */
 public class OscilloscopeHud implements HudElement {
 
@@ -85,6 +86,12 @@ public class OscilloscopeHud implements HudElement {
 		for (float v : history) {
 			maxAbs = Math.max(maxAbs, Math.abs(v));
 		}
+
+		// Full-scale tick labels at the top and bottom of the graph, so the auto-scaled range is
+		// readable directly rather than only inferable from the trace's shape.
+		int axisColor = 0xFF889078;
+		extractor.text(font, String.format("+%.2f", maxAbs), graphX0, graphY0, axisColor, false);
+		extractor.text(font, String.format("-%.2f", maxAbs), graphX0, graphY1 - 8, axisColor, false);
 
 		if (history.size() >= 2) {
 			int n = history.size();

@@ -73,7 +73,8 @@ status; shift-right-click unpins it). The server streams each pinned position's
 instantaneous voltage, current, a 200-sample rolling history, and a short human-readable
 summary to that player once per tick, and the client renders each of the up to three
 channels as an independently color-coded, auto-scaled oscilloscope trace stacked in a
-corner of the screen, as shown in Figure~\ref{fig:scope}. A component's trace displays the
+corner of the screen, as shown in Figure~\ref{fig:scope}, with each trace's own full-scale
+value printed at the top and bottom of its graph. A component's trace displays the
 voltage drop across its two leads (or, for the ammeter, the branch current, reusing the
 same history and rendering machinery so that current and voltage may be observed side by
 side without a separate ``current channel'' concept); a wire or ground block's trace
@@ -98,7 +99,7 @@ Each axis is scaled independently to its own channel's peak magnitude, rather th
 single scale, so that two signals of very different size -- a few volts on one channel,
 millivolts on the other -- each still occupy the plot's full range instead of one being
 compressed to a sliver by the other's larger scale; the two independent full-scale values are
-displayed alongside each axis's instantaneous reading. This does not sacrifice the shared-scale
+printed at both extremes of each axis, directly on the plot. This does not sacrifice the shared-scale
 case's original benefit: a shape only has a distorted aspect ratio when the two channels'
 peak magnitudes genuinely differ, so two equal-amplitude sinusoids in quadrature still trace
 an actual circle rather than a stretched ellipse, since their independently computed scales

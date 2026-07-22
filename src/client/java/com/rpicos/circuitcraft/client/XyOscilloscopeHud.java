@@ -25,7 +25,9 @@ import java.util.List;
  * trade-off is that a shape only has its true aspect ratio (an equal-amplitude, 90-degree
  * phase-shifted pair tracing an actual circle) when the two channels' peaks happen to match -
  * which they still do whenever amplitudes are in fact equal, since the two independent scales
- * then coincide. Note that {@link com.rpicos.circuitcraft.network.XyProbeManager} always
+ * then coincide. Each axis's full-scale value is printed at its own extremes directly on the
+ * plot, since the two axes generally differ and neither should be assumed from the other. Note
+ * that {@link com.rpicos.circuitcraft.network.XyProbeManager} always
  * appends the just-pinned position to the end of its 2-slot list, so the block a player is
  * about to right-click - whether it is brand new, currently X, or currently Y - always
  * becomes (or remains) the Y channel once pinned.
@@ -86,11 +88,21 @@ public class XyOscilloscopeHud implements HudElement {
 			extractor.fill(px, py, px + 1, py + 1, TRACE_COLOR);
 		}
 
+		// Full-scale tick labels at each axis's extremes, so the independently-computed X and Y
+		// scales are readable directly off the plot rather than only inferable from the trace.
+		int axisColor = 0xFF9090A8;
+		String xMaxText = String.format("+%.2f", maxAbsX);
+		String xMinText = String.format("-%.2f", maxAbsX);
+		extractor.text(font, xMinText, plotX0 + 1, plotCenterY + 1, axisColor, false);
+		extractor.text(font, xMaxText, plotX0 + PLOT_SIZE - font.width(xMaxText) - 1, plotCenterY + 1, axisColor, false);
+		extractor.text(font, String.format("+%.2f", maxAbsY), plotCenterX + 2, plotY0 + 1, axisColor, false);
+		extractor.text(font, String.format("-%.2f", maxAbsY), plotCenterX + 2, plotY0 + PLOT_SIZE - 9, axisColor, false);
+
 		int textY = plotY0 + PLOT_SIZE + 4;
 		Component xLabel = Component.literal(
-				String.format("X: %.2fV  %s  (±%.2fV)", data.xVoltage(), data.xSummary(), maxAbsX));
+				String.format("X: %.2fV  %s", data.xVoltage(), data.xSummary()));
 		Component yLabel = Component.literal(
-				String.format("Y: %.2fV  %s  (±%.2fV)", data.yVoltage(), data.ySummary(), maxAbsY));
+				String.format("Y: %.2fV  %s", data.yVoltage(), data.ySummary()));
 		extractor.text(font, xLabel, x0 + 4, textY, 0xFFDDDDDD, false);
 		extractor.text(font, yLabel, x0 + 4, textY + 10, 0xFFDDDDDD, false);
 	}
