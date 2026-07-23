@@ -25,13 +25,12 @@ version's bibliography until it was restored — both versions now keep an indep
 - **Component gallery figures**: initially all four (`elements_gallery.png`,
   `wire_ground_gallery.png`, `generators_gallery.png`, `probes_gallery.png`) were dropped, with
   the seventeen blocks/items described in compact prose only. Once the section consolidation
-  above freed up close to a column of slack, `elements_gallery.png` (the six circuit elements:
-  resistor, capacitor, inductor, memristor, diode, op-amp) was added back into the System
-  Architecture subsection, sized to a single column (`0.95\columnwidth`) rather than the long
-  version's double-column `figure*`. The other three galleries (wire/ground, generators,
-  probes) are still prose-only. Three figures total in the short version now: the
-  package-architecture `tikzpicture`, the elements gallery, and one oscilloscope screenshot
-  (`square_waveform.png` only, not the square+triangle pair).
+  above freed up slack, all four were added back into the System Architecture subsection, each
+  sized to fit within a single column (`0.45`--`0.95\columnwidth` depending on item count)
+  rather than the long version's mix of single- and double-column (`figure*`) sizing. All
+  seventeen items are now shown, not just the six circuit elements. Six figures total in the
+  short version now: the package-architecture `tikzpicture`, the four component galleries, and
+  one oscilloscope screenshot (`square_waveform.png` only, not the square+triangle pair).
 - **The Function Generator's Control Network** (05b, ~968 words in the long version):
   dropped as a standalone section; folded into one clause in Architecture (modules override a
   generator's amplitude/frequency).

@@ -55,15 +55,16 @@ resolved node indices. The mod provides seventeen such blocks and items in total
 electrical role: six circuit elements (Figure~\ref{fig:elements}: resistor, capacitor,
 inductor, memristor, diode, and an ideal op-amp -- the mod's only three-terminal component,
 its input-pair keyed as a separate lead from its output without any per-terminal-count
-branching in the algorithm above); two purely topological blocks (a wire, conductive on all
-six faces with no orientation, and a ground block, identical to wire for topology but
-additionally establishing the network's voltage reference); three independent voltage sources
-(a fixed-DC power supply, a function generator producing sine/square/triangle waves whose
-amplitude and frequency are overridden by two attachable modules, and a dedicated AC Source
-used only by the Bode-plot probe below, Section~\ref{sec:ac-analysis}) -- all three require a
-redstone signal before driving anything (Section~\ref{sec:pedagogy}); and four measurement
-tools (an in-circuit ammeter, electrically an ideal 0~V source reporting an exact branch
-current, plus three handheld probes described next).
+branching in the algorithm above); two purely topological blocks (Figure~\ref{fig:wireground}:
+a wire, conductive on all six faces with no orientation, and a ground block, identical to wire
+for topology but additionally establishing the network's voltage reference); three
+independent voltage sources (Figure~\ref{fig:generators}: a fixed-DC power supply, a function
+generator producing sine/square/triangle waves whose amplitude and frequency are overridden
+by two attachable modules, and a dedicated AC Source used only by the Bode-plot probe below,
+Section~\ref{sec:ac-analysis}) -- all three require a redstone signal before driving anything
+(Section~\ref{sec:pedagogy}); and four measurement tools (Figure~\ref{fig:probes}: an
+in-circuit ammeter, electrically an ideal 0~V source reporting an exact branch current, plus
+three handheld probes described next).
 
 \begin{figure}[htbp]
 \centering
@@ -71,6 +72,29 @@ current, plus three handheld probes described next).
 \caption{The six circuit elements: resistor, capacitor, inductor, memristor, diode, and ideal
 op-amp.}
 \label{fig:elements}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.45\columnwidth]{wire_ground_gallery.png}
+\caption{Wire and ground, the mod's only two purely topological blocks.}
+\label{fig:wireground}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\columnwidth]{generators_gallery.png}
+\caption{The three voltage sources -- power supply, function generator, and AC Source -- and
+the two modules, voltage and frequency, that adjust the function generator's output.}
+\label{fig:generators}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.65\columnwidth]{probes_gallery.png}
+\caption{The four measurement tools: the in-circuit ammeter, and three handheld oscilloscope
+probes.}
+\label{fig:probes}
 \end{figure}
 
 A handheld probe item lets a player pin up to three components, wires, or ground blocks
