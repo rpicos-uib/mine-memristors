@@ -1,9 +1,10 @@
-\documentclass[11pt]{article}
+\documentclass[journal]{IEEEtran}
 
-% Generic, journal-agnostic preamble. Before submission, replace this with the
-% official Overleaf/LaTeX template for the target journal (e.g. SAGE's IJEEE
-% class file) and re-flow these sections into it -- the content is written to
-% be template-independent.
+% IEEE Transactions on Education submission. IEEEtran is double-column: any figure or table
+% wider than about 0.5\textwidth must use the starred (figure*/table*) environment to span
+% both columns rather than being scaled down to fit a single ~3.5in column -- see the
+% sections this affects (04_architecture, 06_pedagogy, 11_appendix_recipes) for the specific
+% figures/tables converted for this reason.
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -11,32 +12,21 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{booktabs}
-\usepackage{hyperref}
 \usepackage{tikz}
 \usetikzlibrary{positioning, arrows.meta, fit, backgrounds}
-\usepackage[margin=1in]{geometry}
-\usepackage{caption}
+\usepackage{cite}
+\usepackage{hyperref}
 
+% TODO before submission: fill in department names, e-mail addresses, and (if applicable)
+% IEEE membership grades (e.g. \IEEEmembership{Senior Member, IEEE}) for each author below --
+% left as plain names/affiliations here since none of this was supplied and it should not be
+% guessed at.
 \title{CircuitCraft: An Open-Source Minecraft Mod to Teach Analog Circuit Theory using a Real Nodal Analysis Solver}
 
-\author{
-Rodrigo Picos\\
-\small Universitat de les Illes Balears
-\and
-Stavros G. Stavrinides\\
-\small Democritus University of Thrace
-\and
-George Stavrinides\\
-\small Democritus University of Thrace
-\and
-Ariadna Picos\\
-\small Universitat de les Illes Balears
-\and
-Gerard Picos\\
-\small Universitat de les Illes Balears
-}
-
-\date{}
+\author{Rodrigo~Picos, Stavros~G.~Stavrinides, George~Stavrinides, Ariadna~Picos, and~Gerard~Picos%
+\thanks{R. Picos, A. Picos, and G. Picos are with the Universitat de les Illes Balears, Palma, Spain.}%
+\thanks{S. G. Stavrinides and G. Stavrinides are with the Democritus University of Thrace, Xanthi, Greece.}%
+\thanks{Manuscript received XX Month 2026; revised XX Month 2026.}}
 
 \begin{document}
 \maketitle
@@ -67,6 +57,13 @@ during development. The paper concludes with a discussion of current limitations
 roadmap for classroom evaluation.
 \end{abstract}
 
+\begin{IEEEkeywords}
+Minecraft, serious games, game-based learning, circuit simulation, modified nodal analysis,
+SPICE, memristor, analog electronics, engineering education.
+\end{IEEEkeywords}
+
+\IEEEpeerreviewmaketitle
+
 \input{sections/01_introduction}
 \input{sections/02_related_work}
 \input{sections/03_minecraft_mechanics}
@@ -81,7 +78,7 @@ roadmap for classroom evaluation.
 \input{sections/09_conclusion}
 \input{sections/10_availability}
 
-\bibliographystyle{plain}
+\bibliographystyle{IEEEtran}
 \bibliography{references}
 
 \clearpage
