@@ -60,10 +60,34 @@ Section~\ref{sec:minecraft-mechanics}). This is the literature to which CircuitC
 closest, and from which it departs most directly: the case studies cited above use
 Minecraft's existing mechanics, redstone included, as the vehicle for a lesson, whereas Mine
 Memristors introduces an entirely new, continuous-time simulation layer, because redstone's
-discrete signal cannot represent voltage, current, or reactive state at all. To the author's
-knowledge, it is the first Minecraft modification to embed a real continuous-time circuit
-solver for this purpose, rather than approximating one with the game's existing discrete
-redstone mechanics.
+discrete signal cannot represent voltage, current, or reactive state at all.
+
+Beyond that academic literature, several existing Minecraft \emph{mods} -- as opposed to
+case studies built on the base game -- add circuit-building mechanics of their own, and are
+worth situating CircuitCraft against directly. Create: Circuits~\cite{chocoboyy2026createcircuits}
+and ProjectRed~\cite{mrtjp2026projectred} both extend the redstone subsystem with more
+compact logic-gate, arithmetic, and memory-latch blocks than vanilla redstone alone provides
+-- ProjectRed as a modular suite (its Integration module specifically supplies the logic
+gates, alongside separate modules for wiring, fabrication, and other redstone-adjacent
+concerns). Create: Circuits labels some of its blocks (adder, multiplier, min, max) as
+handling ``analog'' values, but only in the sense of Create's own multi-valued signal
+strength, an integer quantity in the same fundamentally discrete sense as ordinary redstone
+(Section~\ref{sec:minecraft-mechanics}), not a continuous electrical one; like ProjectRed, it
+represents no voltage, current, or reactive state whatsoever, and both mods are purely
+logical extensions of the same subsystem discussed above rather than a departure from it.
+CircuitSim~\cite{dankov2026circuitsim} is, to the author's knowledge, the only prior
+Minecraft mod that simulates genuinely analog circuits -- resistors, capacitors, inductors,
+diodes, transistors, and op-amps among its components. It does so, however, by exporting a
+player's in-world circuit as a netlist and invoking an external ngspice~\cite{nagel1973spice}
+process, installed separately on the host system and on the system \texttt{PATH}, each time a
+player right-clicks a dedicated ``simulate'' block, rather than solving the circuit natively
+inside the mod itself. CircuitCraft's solver, by contrast, has no external dependency of any
+kind, is embedded directly in the mod, and runs every game tick as an intrinsic part of the
+running world -- driving the oscilloscope HUDs and the memristor's own evolving state live,
+rather than producing a report a player consults after invoking a separate tool. To the
+author's knowledge, it is the first Minecraft modification to embed a native, continuous-time
+circuit solver for this purpose, rather than approximating one with the game's existing
+discrete redstone mechanics or delegating it to an external simulator.
 
 \subsection{Memristor theory and compact models}
 
