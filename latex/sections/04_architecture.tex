@@ -29,13 +29,15 @@ the oscilloscope heads-up display.
 
 \draw[-{Latex[length=2mm]}] (blockentity) -- (sim);
 \draw[-{Latex[length=2mm]}] (block) -- (blockentity);
-\draw[-{Latex[length=2mm]}] (network) -- (blockentity);
-% Routed as a dogleg out to the right, rather than a straight line, since network and sim
-% are two boxes apart in the stack -- a direct line between their centers/anchors would cut
-% straight through the block and blockentity boxes' text in between. Offset generously
-% (1cm, not just enough to clear the nominal 6.2cm edge) since this exact arrow is what
-% twice revealed a box quietly wider than intended - safety margin here is cheap.
-\draw[-{Latex[length=2mm]}] (network.east) -- ++(1.0,0) |- (sim.east);
+% network depends on both blockentity and sim directly, so both of the next two edges skip
+% over at least one intervening box in the stack (network->blockentity skips "block";
+% network->sim skips both "block" and "blockentity") and are routed as nested doglegs out to
+% the right rather than straight lines, which would otherwise cut through that intervening
+% text -- the inner dogleg sits closer to the column, the outer one further out, so the two
+% arrows run parallel without crossing. (An earlier fix only rerouted the outer one, having
+% missed that the inner network->blockentity edge has exactly the same problem.)
+\draw[-{Latex[length=2mm]}] (network.east) -- ++(0.7,0) |- (blockentity.east);
+\draw[-{Latex[length=2mm]}] (network.east) -- ++(1.4,0) |- (sim.east);
 \draw[-{Latex[length=2mm]}] (client) -- (network);
 \end{tikzpicture}
 \caption{Package-level architecture. The solver has zero Minecraft dependencies and is
