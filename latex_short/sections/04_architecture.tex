@@ -52,18 +52,26 @@ mod rebuilds a union--find partition over every block face presenting a conducti
 toward a conductive neighbor, assigns one MNA node index to each resulting partition, and
 instructs every component in that network to stamp itself into the circuit between its
 resolved node indices. The mod provides seventeen such blocks and items in total, grouped by
-electrical role: six circuit elements (resistor, capacitor, inductor, memristor, diode, and
-an ideal op-amp -- the mod's only three-terminal component, its input-pair keyed as a
-separate lead from its output without any per-terminal-count branching in the algorithm
-above); two purely topological blocks (a wire, conductive on all six faces with no
-orientation, and a ground block, identical to wire for topology but additionally
-establishing the network's voltage reference); three independent voltage sources (a
-fixed-DC power supply, a function generator producing sine/square/triangle waves whose
+electrical role: six circuit elements (Figure~\ref{fig:elements}: resistor, capacitor,
+inductor, memristor, diode, and an ideal op-amp -- the mod's only three-terminal component,
+its input-pair keyed as a separate lead from its output without any per-terminal-count
+branching in the algorithm above); two purely topological blocks (a wire, conductive on all
+six faces with no orientation, and a ground block, identical to wire for topology but
+additionally establishing the network's voltage reference); three independent voltage sources
+(a fixed-DC power supply, a function generator producing sine/square/triangle waves whose
 amplitude and frequency are overridden by two attachable modules, and a dedicated AC Source
 used only by the Bode-plot probe below, Section~\ref{sec:ac-analysis}) -- all three require a
 redstone signal before driving anything (Section~\ref{sec:pedagogy}); and four measurement
 tools (an in-circuit ammeter, electrically an ideal 0~V source reporting an exact branch
 current, plus three handheld probes described next).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\columnwidth]{elements_gallery.png}
+\caption{The six circuit elements: resistor, capacitor, inductor, memristor, diode, and ideal
+op-amp.}
+\label{fig:elements}
+\end{figure}
 
 A handheld probe item lets a player pin up to three components, wires, or ground blocks
 simultaneously; the server streams each pinned position's instantaneous voltage, current, a
