@@ -1,0 +1,53 @@
+\section{AC (Small-Signal) Analysis}
+\label{sec:ac-analysis}
+
+The solver of Section~\ref{sec:circuit-solver} answers a transient question: given a
+circuit's exact values and a starting state, what does every voltage and current do over
+time? A complementary question -- how does a circuit respond to a sinusoidal excitation as a
+function of frequency alone -- is answered instead by AC (small-signal) analysis, the
+technique underlying every Bode plot in an electronics textbook: every node voltage and
+branch current is assumed already varying sinusoidally at a single angular frequency
+$\omega$, and the solver solves directly for each phasor's complex amplitude, using the same
+node/branch structure as the transient MNA formulation but with every conductance,
+companion model, and source replaced by its frequency-domain counterpart. CircuitCraft
+implements this as an entirely separate solver, \texttt{AcCircuit}, sharing the transient
+solver's node-numbering topology (Section~\ref{sec:architecture}) but operating on disjoint,
+complex-valued representations solved fresh at each swept frequency. Following the standard
+small-signal convention, every independent voltage source other than the one designated as
+the AC excitation is stamped at exactly zero volts (an ideal short) for the sweep's duration,
+isolating the frequency response to the one signal path being characterized.
+
+Each element gains a second stamping method taking $\omega$ directly: a resistor's admittance
+is its unchanged conductance $1/R$; a capacitor's is $Y=j\omega C$ and an inductor's
+$Y=1/(j\omega L)$, requiring no companion history term since AC analysis solves the
+steady-state response directly; a diode linearizes about its last-solved operating point into
+the small-signal resistance $r_d=V_T/I_D$; and a memristor is, for now, treated as a plain
+resistor frozen at whatever resistance it currently holds, a deliberate simplification
+(Section~\ref{sec:limitations}) rather than an oversight -- a genuine small-signal memristor
+model would need its own frequency response derived from the charge-controlled state
+equation, and recent results toward exactly such a model, including Bode-plot-based
+extraction from real flexible-memristor measurements, are given
+in~\cite{gater2026smallsignal,gater2025bodeplots}. Each transient-verified case above was
+independently checked against a closed-form AC reference during development
+(Section~\ref{sec:validation}): a resistive divider's response is flat across many decades of
+frequency, and a series RC low-pass reproduces the textbook $-3$~dB, $-45^\circ$ point at
+$f_c=1/(2\pi RC)$ with the correct asymptotic $-20$~dB/decade rolloff.
+
+A new two-terminal AC Source component, wired like any other, supplies the sweep's
+excitation; unlike every other adjustable component, its amplitude and swept frequency range
+are set only through the shift-right-click value editor rather than a preset cycle, since a
+frequency \emph{range} is not the kind of quantity a short preset list represents well. In
+the ordinary transient simulation it contributes nothing but a 0~V source, electrically a
+plain wire, so a circuit built around one behaves normally when no sweep is running. The
+ideal op-amp, an infinite-bandwidth nullor in the transient model, is replaced during a sweep
+by a standard two-pole open-loop gain model with fixed, illustrative values ($A_0=10^5$,
+poles at 20~Hz and 3~MHz) giving it the rolloff and phase shift a real amplifier -- and a
+Bode plot -- would show, verified directly against the model's own closed-form $-3$~dB point.
+
+A dedicated AC probe captures a two-step interaction distinct from every other probe:
+right-clicking an AC Source first pins it as the sweep's excitation; right-clicking a second
+point afterward -- any wired component, wire, or ground block -- runs the sweep and displays
+the result. The sweep evaluates 60 log-spaced frequencies across the pinned source's
+configured range, solving a fresh \texttt{AcCircuit} at each one and reporting the magnitude
+(dB) and phase (degrees) of the signal position's voltage relative to the source's own
+amplitude, rendered as two stacked graphs against a shared log-frequency axis.

@@ -1,0 +1,37 @@
+\section{Minecraft as a Construction Substrate}
+\label{sec:minecraft-mechanics}
+
+Minecraft's world is a three-dimensional grid of one-metre cubes, or \emph{blocks}; a block
+occupies exactly one grid cell and, depending on its type, may carry a small amount of state
+directly within that cell (its \emph{block state}), such as which of the six axis-aligned
+directions it is \emph{facing} at the moment of placement. Every two-terminal component in
+this mod reuses exactly this mechanic to determine which two of its six faces serve as its
+electrical leads (Section~\ref{sec:architecture}): a resistor placed while facing north has
+its leads on its north and south faces, the same behavior the base game's own oriented blocks
+(a piston, a dispenser) already exhibit, so no new placement mechanic had to be introduced.
+
+The base game already provides an entire circuit-like subsystem, redstone: an integer signal
+strength from 0 to 15 that decreases by one per block of dust traversed and updates through a
+discrete neighbor-notification event fired once per tick, with no built-in notion of voltage,
+current, capacitance, or continuous time. Despite this limitation, redstone is widely used,
+both informally and as a subject of academic interest~\cite{nebel2016mining}, as an entry
+point into digital logic and rudimentary computer architecture, and players commonly describe
+redstone circuits in explicitly electrical language despite the underlying mechanic being
+discrete and boolean~\cite{dezuanni2015redstone}. This motivates a specific design decision:
+Minecraft's building metaphor already appears to prime players to reason electrically, yet
+redstone cannot itself serve as the vehicle for teaching \emph{analog} behavior, since it has
+no continuous quantity to teach with -- community ``analog redstone'' techniques exist, but
+only approximate a continuous value as a coarse, sixteen-level discretization.
+
+Minecraft's modding interfaces expose a richer construct than a plain block's fixed state,
+the \emph{block entity}: an object holding arbitrary mutable data that, if requested, executes
+code once per game tick (20~Hz, the game's own simulation rate). Every component, wire node,
+ground reference, and configuration module in this mod is a block entity for precisely this
+reason, locking the mod's simulation cadence to the game's own tick rate without a separate
+timing mechanism. The mod's own contribution is deliberately narrow: a second, parallel
+notion of adjacency (whether a face is electrically conductive toward its neighbor,
+Section~\ref{sec:architecture}) alongside the game's existing physical adjacency, supplying
+the resulting graph to a genuine solver every tick rather than encoding behavior directly
+into the blocks. Redstone is reused only for the one concept it is genuinely suited to
+represent here: a boolean on/off switch gating whether a voltage source is connected at all
+(Section~\ref{sec:pedagogy}), not as an analog signal it was never designed to carry.

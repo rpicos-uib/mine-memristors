@@ -1,0 +1,49 @@
+\section{Introduction}
+\label{sec:introduction}
+
+Teaching the transient and steady-state behavior of analog circuits is difficult in part
+because the underlying phenomena -- charge on a capacitor plate, flux linking an inductor's
+turns, a memristor's internal state drifting with the integral of the current through it --
+are not directly observable. The conventional response pairs the mathematics with a
+laboratory bench and, increasingly, with software simulators such as
+SPICE~\cite{nagel1973spice}, LTspice, or browser-based tools such as the Falstad circuit
+simulator and PhET's Circuit Construction Kit. These are effective, but each presents the
+circuit as a schematic on a two-dimensional canvas, an abstraction removed by one level from
+the physical act of connecting components that a breadboard still preserves.
+
+Sandbox games occupy a distinctive position relative to both approaches. Minecraft in
+particular has an established record as an informal STEM learning environment
+(Section~\ref{sec:related-work}), and its native redstone subsystem is already a widely used
+entry point into digital logic (Section~\ref{sec:minecraft-mechanics}). No equivalent exists,
+however, for \emph{analog} circuit theory within the base game: redstone signals are
+effectively boolean, propagated through a discrete per-block delay, with no built-in notion
+of voltage, current, capacitance, or continuous time.
+
+This paper describes CircuitCraft~\cite{picos2026circuitcraft}, a modification (``mod'') for
+the Fabric mod loader, released as free and open-source software under the MIT license, that
+adds a complete set of analog circuit components to Minecraft: resistors, capacitors,
+inductors, memristors, diodes, an ideal operational amplifier, DC and time-varying voltage
+sources, a dedicated AC (small-signal) source, an ammeter, wire, an explicit
+ground-reference block, and three handheld oscilloscope probes. Placing and wiring these
+blocks together constructs an actual circuit topology within the game world; a modified
+nodal analysis solver, structurally identical to the technique used by SPICE-family
+simulators~\cite{ho1975mna}, is re-solved once per game tick (20~Hz) to drive every block's
+displayed voltage, current, and internal state. No behavior in the mod is a scripted
+approximation of the underlying physics: a diode's current follows the same linearized
+Shockley relation~\cite{shockley1949diode} a SPICE-family simulator would use, and a
+memristor's resistance drifts according to the same charge-controlled ordinary differential
+equation used in the original HP linear-drift model~\cite{strukov2008missing}.
+
+The remainder of this paper situates CircuitCraft relative to existing simulators and the
+Minecraft-in-education literature (Section~\ref{sec:related-work}), examines which of
+Minecraft's own mechanics the mod builds upon (Section~\ref{sec:minecraft-mechanics}),
+describes the software architecture and the topology-construction algorithm
+(Section~\ref{sec:architecture}), the transient and AC solvers
+(Sections~\ref{sec:circuit-solver}--\ref{sec:ac-analysis}), the pedagogical rationale
+(Section~\ref{sec:pedagogy}), two representative worked experiments
+(Section~\ref{sec:experiments}), the verification methodology
+(Section~\ref{sec:validation}), and current limitations and planned classroom evaluation
+(Section~\ref{sec:limitations}), before concluding (Section~\ref{sec:conclusion}). An
+extended version of this paper, available alongside the mod's source code
+(Section~\ref{sec:availability}), gives all six worked experiments, full architectural and
+crafting-recipe detail, and additional discussion omitted here for space.

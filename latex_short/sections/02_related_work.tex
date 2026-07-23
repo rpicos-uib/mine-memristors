@@ -1,0 +1,55 @@
+\section{Related Work}
+\label{sec:related-work}
+
+SPICE and its descendants~\cite{nagel1973spice} remain the reference implementation of
+circuit simulation, built around modified nodal analysis~\cite{ho1975mna}. Educational tools
+such as the Falstad circuit simulator and PhET's Circuit Construction Kit lower the barrier
+to entry by replacing SPICE's netlist syntax with direct schematic manipulation, but all
+three still present the circuit as a two-dimensional schematic. CircuitCraft uses the same
+underlying numerical technique (Sections~\ref{sec:architecture}--\ref{sec:circuit-solver})
+but embeds it in a three-dimensional, first-person, block-based world instead.
+
+Minecraft has an established record as an informal STEM learning
+environment~\cite{nebel2016mining,sitzmann2011meta}, with published case studies spanning
+mathematics~\cite{bos2014mathematics}, general science~\cite{short2012teaching}, and
+open-ended creative/collaborative use~\cite{cipollone2014creative,callaghan2016investigating}.
+Within that literature, the subset closest to this paper concerns Minecraft's native redstone
+subsystem, already a common entry point for teaching digital logic: Dezuanni et
+al.~\cite{dezuanni2015redstone} document children reasoning about redstone circuits in
+explicitly electrical language, notwithstanding that the underlying mechanic is a discrete,
+boolean signal rather than a continuous one. This is the literature CircuitCraft is closest
+to, and departs from most directly: those case studies use Minecraft's existing mechanics,
+redstone included, as the vehicle for a lesson, whereas CircuitCraft introduces an entirely
+new, continuous-time simulation layer, because redstone's discrete signal cannot represent
+voltage, current, or reactive state at all.
+
+Beyond that academic literature, several Minecraft \emph{mods} add circuit-building
+mechanics of their own. Create: Circuits~\cite{chocoboyy2026createcircuits} and
+ProjectRed~\cite{mrtjp2026projectred} both extend the redstone subsystem with more compact
+logic-gate, arithmetic, and memory-latch blocks -- Create: Circuits labels some blocks
+``analog,'' but only in the sense of Create's own multi-valued signal strength, an integer
+quantity as fundamentally discrete as ordinary redstone, not a continuous electrical one;
+neither mod represents voltage, current, or reactive state at all.
+CircuitSim~\cite{dankov2026circuitsim} is, to the authors' knowledge, the only prior
+Minecraft mod simulating genuinely analog circuits (resistors, capacitors, diodes,
+transistors, op-amps), but it does so by exporting a player's circuit as a netlist and
+invoking an external ngspice process installed separately on the host system, rather than
+solving it natively. CircuitCraft's solver has no external dependency, is embedded directly
+in the mod, and runs every game tick as an intrinsic part of the running world; to the
+authors' knowledge it is the first Minecraft modification to embed a native, continuous-time
+circuit solver for this purpose.
+
+The memristor was postulated on symmetry grounds by Chua~\cite{chua1971memristor} as a
+fourth fundamental circuit element; a physical device exhibiting the predicted
+charge-controlled behavior was subsequently reported by Strukov et al.\ at
+HP~Labs~\cite{strukov2008missing}, whose linear-drift formulation is the model implemented
+here (Section~\ref{sec:circuit-solver}). Subsequent work refines this formulation for
+large-scale design or device-matching purposes -- a windowed variant addressing boundary
+pinning~\cite{biolek2009spice}, a threshold-based model trading physical detail for
+simulation speed~\cite{kvatinsky2013team}, a physics-based compact model of filament
+formation~\cite{guan2012compact}, a charge--flux-domain formulation~\cite{picos2015chargeflux},
+and a simplified neuromorphic-ReRAM model~\cite{alchawa2020simple}. CircuitCraft implements
+Strukov et al.'s original formulation specifically because it is simple enough to verify in
+closed form (Section~\ref{sec:validation}) and traceable to the historically foundational
+definition a student is most likely to encounter first, rather than optimized for matching a
+fabricated device or for large-array simulation efficiency.

@@ -1,0 +1,41 @@
+\section{Limitations and Future Work}
+\label{sec:limitations}
+
+\textbf{Reactive state resets on topology change.} A network's circuit is rebuilt from
+scratch whenever its wiring changes anywhere within it, resetting a capacitor's charge or an
+inductor's current to zero at that instant; the memristor is deliberately exempted, since
+persistent state is its central pedagogical purpose. Carrying reactive state across a
+topology rebuild the same way is planned future work.
+
+\textbf{Discrete presets remain the default, alongside an optional numeric entry.} Every
+adjustable quantity is still, by default, one of a small number of discrete presets cycled by
+right-click; a shift-right-click additionally opens a sign-style text-entry screen accepting
+any value in the same clamped range, though this does not yet extend to purely categorical
+choices (diode family, waveform shape) with no single underlying numeric value.
+
+\textbf{AC analysis is small-signal only, with fixed op-amp pole values.} Every source other
+than the pinned AC Source is stamped at 0~V regardless of its own redstone state, the
+standard small-signal convention but one that does not distinguish ``genuinely off'' from
+``treated as an AC ground.'' The two-pole op-amp model's gain and pole frequencies are fixed
+constants rather than an editable preset, and the memristor's AC case remains a frozen
+resistor with no frequency dependence of its own -- future work building
+on~\cite{gater2026smallsignal,gater2025bodeplots}.
+
+\textbf{Solver scalability.} The MNA system for each network is solved by dense Gaussian
+elimination every tick, adequate for hand-built circuit sizes but scaling as $O(n^3)$ without
+exploiting sparsity; a sparse solver or amortized re-solves would be needed for very large
+circuits or a heavily populated multiplayer server.
+
+\textbf{Verification remains informal, and memristor model fidelity is limited to the
+original formulation.} The closed-form comparisons of Section~\ref{sec:validation} are not
+yet a persisted regression suite, and the tool's pedagogical effectiveness has been assessed
+only informally; a pre/post evaluation using an established circuits concept inventory,
+comparing a CircuitCraft cohort against a conventional schematic-simulator cohort, is a
+natural next step. The mod also implements only the original HP linear-drift memristor model,
+known to exhibit boundary pinning under sustained excitation (Section~\ref{sec:experiments}
+observes this directly); exposing a windowed variant such as Biolek et al.'s~\cite{biolek2009spice}
+as an additional preset is planned.
+
+\textbf{Platform dependency.} The mod is tied to a specific, externally maintained version of
+Minecraft and Fabric, both of which continue to evolve, requiring ongoing verification effort
+(Section~\ref{sec:validation}) to track future game updates.

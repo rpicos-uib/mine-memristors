@@ -1,0 +1,49 @@
+\section{Pedagogical Design}
+\label{sec:pedagogy}
+
+Each design choice described in Sections~\ref{sec:architecture}--\ref{sec:circuit-solver}
+was made with a specific misconception or missing intuition in mind, in the spirit of
+Papert's constructionism~\cite{papert1980mindstorms}: a learner constructs a working artifact
+and inspects its behavior directly, rather than observing that behavior secondhand.
+
+\textbf{Wiring as physical placement, not schematic capture.} A component's two leads are
+specific block faces, connected only if each presents a conductive face to the other -- closer
+to breadboarding than to drawing a schematic: a player who leaves a gap in an intended series
+loop obtains a demonstrably incomplete circuit (the floating-node handling of
+Section~\ref{sec:circuit-solver} ensures this fails safely rather than crashing), the same way
+a breadboard with a missing jumper simply does not function, rather than a schematic tool
+flagging an unconnected pin as an abstract error.
+
+\textbf{An explicit ground reference.} That voltage is always relative to a chosen reference
+is a standard remark in an introductory course, but is easily received as incidental when a
+schematic tool draws a ground symbol automatically, already connected. Requiring a player to
+place and wire a ground block independently, before a wire's absolute voltage reading becomes
+meaningful, renders the reference an object the player is responsible for, not a background
+assumption.
+
+\textbf{Sources that must be switched on.} All three voltage sources are wired to a redstone
+input and remain inert until it is active: the power supply and function generator an open
+circuit, and the AC Source a silenced 0~V excitation during a sweep. This mirrors an actual
+laboratory workflow -- wire the circuit completely, verify it, only then switch the supply
+on -- rather than a schematic tool's sources, implicitly ``live'' the instant they are drawn,
+and lets a player make and recover from the same self-shorting wiring error a bench
+technician must learn to avoid, surfaced as an in-game warning rather than a crash.
+
+\textbf{Multi-signal, multi-mode oscilloscopes.} A single-channel readout answers what one
+component is doing in isolation, but the more instructive classroom question is comparative:
+how does a capacitor's voltage lag the source driving it? Figure~\ref{fig:scope} shows the
+in-game oscilloscope pinned to three points within one circuit at once, reproducing the
+relative-phase comparison a bench oscilloscope's multiple channels are ordinarily used for; a
+second, X-Y probe instead plots two signals directly against each other as a shape rather than
+as two scrolling traces, and the AC probe (Section~\ref{sec:ac-analysis}) makes a filter's
+frequency response -- rather than only its time-domain step response -- directly observable.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\columnwidth]{square_waveform.png}
+\caption{The in-game multi-channel oscilloscope, pinned simultaneously to a function
+generator (top trace), a capacitor (middle trace), and a resistor (bottom trace) within the
+same circuit, driven by a square wave. Each trace is independently auto-scaled and
+color-coded, with a live voltage/current readout and state summary below its plot.}
+\label{fig:scope}
+\end{figure}

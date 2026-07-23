@@ -1,0 +1,65 @@
+\section{The Circuit Solver}
+\label{sec:circuit-solver}
+
+The solver follows the standard MNA formulation~\cite{ho1975mna}. With $n$ non-ground nodes
+and $m$ independent voltage sources, the unknown vector comprises the stacked node-voltage
+vector $v \in \mathbb{R}^n$ and branch-current vector $j \in \mathbb{R}^m$:
+\begin{equation}
+\begin{bmatrix} G & B \\ B^{\top} & 0 \end{bmatrix}
+\begin{bmatrix} v \\ j \end{bmatrix}
+=
+\begin{bmatrix} i \\ e \end{bmatrix},
+\end{equation}
+where $G$ is the conductance matrix assembled by stamping every resistive (or
+companion-resistive) element, $B$ encodes each voltage source's node pair, $i$ collects
+independent current injections, and $e$ is the vector of source values at the current
+simulation time. Node~0 is reserved as the ground reference and excluded from the unknown
+vector. The resulting dense system is solved once per game tick ($h=1/20$~s) by Gaussian
+elimination with partial pivoting; a small conductance ($10^{-9}$~S) is added unconditionally
+to every non-ground node's diagonal to keep the matrix non-singular for a genuinely floating
+node -- a component with an unconnected lead, which incremental in-game construction produces
+routinely -- without measurably perturbing an actually-connected circuit.
+
+Capacitors and inductors are stamped using trapezoidal-integration companion models rather
+than backward Euler, specifically because backward Euler's artificial numerical damping would
+visibly flatten an underdamped LC transient a student is attempting to observe: a capacitor
+with capacitance $C$ becomes a conductance $G_{eq}=2C/h$ in parallel with a Norton source
+$I_{eq}=-G_{eq}v_C(t-h)-i_C(t-h)$, and correspondingly $G_{eq}=h/(2L)$ for an inductor.
+
+The memristor implements Strukov et al.'s charge-controlled linear-drift
+model~\cite{strukov2008missing} (Section~\ref{sec:related-work} surveys refinements):
+\begin{equation}
+R(q) = R_{on}\left(1 - \frac{q}{q_{max}}\right) + R_{off}\,\frac{q}{q_{max}}, \qquad
+\dot{q}(t) = i(t),
+\end{equation}
+with $q/q_{max}$ clamped to $[0,1]$, defaults $R_{on}=100\,\Omega$, $R_{off}=10\,000\,\Omega$,
+and a player-adjustable ``switching speed'' preset scaling $q_{max}$. Because $q$ is the time
+integral of the current through the device, its resistance depends on the device's entire
+history rather than its instantaneous state -- the defining property distinguishing a
+memristor from a resistor -- so, uniquely among the mod's reactive elements, this state is
+deliberately preserved across a network topology rebuild (Section~\ref{sec:limitations}).
+
+The diode, the mod's first nonlinear element, is linearized each tick about the terminal
+voltage it converged to on the \emph{previous} tick, using the Shockley
+equation~\cite{shockley1949diode} $i(v)=I_S(e^{v/V_T}-1)$ to produce a companion conductance
+$G_{eq}=\mathrm{d}i/\mathrm{d}v$ and a parallel correction current source, the same
+``reuse-last-tick's-state'' approach general-purpose simulators use to avoid an
+in-tick Newton-Raphson iteration~\cite{massobrio1993spice}. Three presets (silicon,
+germanium, red LED) fix $I_S$ and $V_T$ to each family's textbook forward voltage.
+
+The ideal op-amp, the mod's first three-terminal component, is modeled as a
+\emph{nullor}~\cite{chualin1975nullor}: an element enforcing $v_{+}=v_{-}$ while drawing no
+current at either input, whose output supplies whatever current is required to satisfy that
+constraint. It contributes one auxiliary branch-current unknown and one constraint row,
+$v_{+}-v_{-}=0$, but unlike a voltage source that current is injected only at the output node
+rather than symmetrically at the constraint's own two referenced nodes. A voltage-follower
+configuration reproduces $v_{out}=v_{in}$ to floating-point precision, and a non-inverting
+amplifier with a resistive feedback divider matches the textbook gain $1+R_2/R_1$ to within
+numerical roundoff (Section~\ref{sec:validation}).
+
+Finally, an explicit ground block -- conductive on all six faces like wire, but assigned node
+index~0 directly during topology construction rather than a freshly allocated index -- gives
+the game world a physical object corresponding to MNA's mathematical reference node, letting a
+player read a wire's \emph{absolute} voltage (not merely a component's voltage drop) once a
+ground reference is established somewhere in the same network, mirroring how a bench
+measurement requires a ground clip to be attached before any reading becomes meaningful.

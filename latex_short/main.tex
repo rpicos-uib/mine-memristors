@@ -1,0 +1,80 @@
+\documentclass[journal]{IEEEtran}
+
+% Short version (target: 8 pages, IEEE Transactions on Education). This is a condensed
+% companion to the full paper in ../latex/ -- see SHORT_VERSION.md in this directory for what
+% was cut and why. The two are maintained as separate files (not a single \ifshort-toggled
+% source) since the cuts are too extensive (roughly half the content) for conditional
+% inclusion to stay readable; changes made to the long version after this split need to be
+% manually ported here if they should also apply to the short one.
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\graphicspath{{../latex/figures/}}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, fit, backgrounds}
+\usepackage{cite}
+\usepackage{hyperref}
+
+% TODO before submission: fill in department names, e-mail addresses, and (if applicable)
+% IEEE membership grades (e.g. \IEEEmembership{Senior Member, IEEE}) for each author below --
+% left as plain names/affiliations here since none of this was supplied and it should not be
+% guessed at. Kept identical to the long version's author block.
+\title{CircuitCraft: An Open-Source Minecraft Mod to Teach Analog Circuit Theory using a Real Nodal Analysis Solver}
+
+\author{Rodrigo~Picos, Stavros~G.~Stavrinides, George~Stavrinides, Ariadna~Picos, and~Gerard~Picos%
+\thanks{R. Picos, A. Picos, and G. Picos are with the Universitat de les Illes Balears, Palma, Spain.}%
+\thanks{S. G. Stavrinides and G. Stavrinides are with the Democritus University of Thrace, Xanthi, Greece.}%
+\thanks{Manuscript received XX Month 2026; revised XX Month 2026.}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This paper presents CircuitCraft, an open-source modification (``mod'') for the sandbox
+game Minecraft that transforms the game world into an analog electronics laboratory. Players
+place resistor, capacitor, inductor, memristor, diode, and ideal op-amp blocks, wire them
+together using conductive blocks, drive them with DC and time-varying sources, and probe the
+resulting voltages and currents with a pair of handheld oscilloscope probes -- one
+time-domain, one X-Y -- all rendered as ordinary game objects placed and manipulated with the
+same mechanics used to construct anything else within the game. In contrast to scripted or
+table-driven approximations of circuit behavior, every electrical quantity in CircuitCraft
+is produced by a genuine modified nodal analysis (MNA) solver of the kind
+employed in SPICE-family simulators, including a charge-controlled linear-drift memristor
+model, a linearized diode, and an ideal op-amp modeled as a nullor. A separate, complex-valued
+small-signal (AC) solver, sharing the same wiring topology, additionally lets a player sweep a
+dedicated AC source across a configurable frequency range and read the result as a Bode plot.
+This paper summarizes the mod's software architecture, the circuit-theoretic design decisions
+underlying it, the pedagogical rationale for embedding a correct solver within a game
+environment rather than a dedicated simulator, and two representative worked experiments; an
+extended version with all six worked experiments, full crafting-recipe tables, and additional
+architectural detail is available alongside the mod's source code.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Minecraft, serious games, game-based learning, circuit simulation, modified nodal analysis,
+SPICE, memristor, analog electronics, engineering education.
+\end{IEEEkeywords}
+
+\IEEEpeerreviewmaketitle
+
+\input{sections/01_introduction}
+\input{sections/02_related_work}
+\input{sections/03_minecraft_mechanics}
+\input{sections/04_architecture}
+\input{sections/05_circuit_solver}
+\input{sections/05c_ac_analysis}
+\input{sections/06_pedagogy}
+\input{sections/06b_experiments}
+\input{sections/07_validation}
+\input{sections/08_limitations_future_work}
+\input{sections/09_conclusion}
+\input{sections/10_availability}
+
+\bibliographystyle{IEEEtran}
+\bibliography{../latex/references}
+
+\end{document}

@@ -1,0 +1,62 @@
+\section{Worked Experiments}
+\label{sec:experiments}
+
+To ground the pedagogical claims of Section~\ref{sec:pedagogy} in something a reader can
+reproduce, this paper's extended version specifies six complete circuits built from the
+mod's own components: a resistive divider, an RC low-pass and an RLC resonance Bode plot, a
+diode rectifier, a memristor hysteresis-loop measurement, and an op-amp open-loop gain
+rolloff, each built into the same persistent world with exact preset values and closed-form
+expected results. Two representative experiments are given in full below; the remaining four,
+and full architectural/crafting detail, are in the extended version
+(Section~\ref{sec:availability}). None of the mod's block entities persist their
+right-click-selected preset across a world save and reload, so each experiment states the
+default and the exact number of right-clicks needed to reach its intended value, and every
+source requires a redstone lever, left off by default, flipped as the first step below.
+
+\subsection{RC low-pass Bode plot}
+\label{sec:exp-rc}
+
+An AC Source, a resistor, and a capacitor in series, the capacitor's far lead tied to ground.
+Right-click the resistor twice ($100\to1000\to10\,000\,\Omega$); right-click the capacitor
+once ($10\to100\,\mu\text{F}$), giving $\tau=RC=1$~s and a cutoff frequency
+$f_c=1/(2\pi\tau)\approx0.159$~Hz. Set the AC Source's frequency range to $0.1$--$100$~Hz via
+the value editor, comfortably bracketing $f_c$ in log-frequency.
+
+\textbf{Procedure.} Flip the lever. Right-click the AC probe against the AC Source to pin it,
+then right-click the capacitor to run the sweep.
+
+\textbf{Expected result.} The standard first-order transfer function
+$H(j\omega)=1/(1+j\omega RC)$ predicts a response close to flat ($\approx-1.4$~dB) at the
+sweep's $0.1$~Hz lower bound, an exact $-3$~dB with a $-45^\circ$ phase shift at
+$f_c\approx0.159$~Hz, and a steep rolloff to roughly $-56$~dB by $100$~Hz -- very close to
+$20$~dB per subsequent decade once well past cutoff, the asymptotic rate any first-order
+filter exhibits regardless of its specific $R$ and $C$.
+
+\subsection{Memristor pinched hysteresis loop}
+\label{sec:exp-memristor}
+
+A circuit using the X-Y oscilloscope probe rather than the time-domain one: a function
+generator driving a memristor in series with an ammeter, tracing the memristor's current
+against its own voltage. A pinched hysteresis loop through the origin -- present at any drive
+frequency, collapsing to a single-valued curve only in the DC limit -- is the experimental
+signature that originally motivated the memristor's postulation and physical confirmation
+(Section~\ref{sec:related-work}). A frequency module (default 0.5~Hz) slows the generator's
+default 1~Hz sine down to 0.5~Hz; the memristor is left at its default $R_{on}=100\,\Omega$,
+$R_{off}=10\,000\,\Omega$, $q_{max}=10^{-3}$~C. This remains a time-domain experiment: the AC
+solver's memristor case (Section~\ref{sec:ac-analysis}) is deliberately just a frozen
+resistor, and could show only a flat response, never the hysteresis loop that is the point.
+
+\textbf{Procedure.} Flip the lever. Pin the memristor \emph{first} with the X-Y probe and the
+ammeter \emph{second}, so pinning order puts voltage on X and current on Y.
+
+\textbf{Expected result.} This experiment is genuinely nonlinear -- the memristor's own
+resistance depends on the full time history of the current through it, which in turn depends
+on that same resistance -- so no closed-form prediction is offered; the current-voltage trace
+should appear as a pinched loop crossing the origin every cycle, widest where the driving
+voltage is largest and progressively narrowing toward the origin, distinguishing it from an
+ordinary resistor's straight line or a reactive element's open ellipse. Because this mod
+implements the original, unwindowed HP linear-drift model, a rough charge-balance estimate
+for these parameters suggests the loop may visibly flatten as it approaches its boundary
+within a half-cycle, a direct illustration of the boundary-pinning limitation Biolek et al.'s
+windowed model was later designed to address (Sections~\ref{sec:related-work}
+and~\ref{sec:limitations}).
