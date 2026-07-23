@@ -36,19 +36,19 @@ it.}
 
 \subsection{Components and topology}
 
-Every two-terminal component (resistor, capacitor, inductor, memristor, diode, the two
-voltage sources, and an ammeter) occupies a single block, oriented along the horizontal or
-vertical axis the player was facing when it was placed; its two electrical leads are its
-front and back faces along that axis, and its other four faces are electrically insulated. A
-separate wire block conducts on all six faces and has no orientation, and a ground block
-(see Section~\ref{sec:circuit-solver}) behaves identically to wire for topology purposes.
+A two-terminal component occupies a single block, oriented along the horizontal or vertical
+axis the player was facing when it was placed; its two electrical leads are its front and
+back faces along that axis, and its other four faces are electrically insulated. Which of the
+four figures below a given block appears in (Sections~\ref{sec:circuit-elements}
+through~\ref{sec:probes}) depends only on its electrical role -- element, topology-only,
+source, or measurement tool -- not on any special-casing in the topology algorithm itself,
+which treats all seventeen blocks and items uniformly.
 
 Once per game tick, for each independent group of adjacent, mutually-conductive blocks
 (a ``network''), the mod rebuilds a union--find partition over every block face that
 presents a conductive surface toward a conductive neighbor, assigns one MNA node index to
 each resulting partition, and instructs every component in that network to stamp itself
-into the circuit between its resolved node indices. Figure~\ref{fig:gallery} shows the
-complete set of component and utility blocks available to a player.
+into the circuit between its resolved node indices.
 
 The ideal op-amp (Section~\ref{sec:circuit-solver}) is the mod's first component with three
 electrical leads rather than two, which the topology algorithm above accommodates without
@@ -58,12 +58,86 @@ ground are) or a distinct lead, so an entity simply exposes as many independentl
 leads as it has terminals, and the final node-resolution step reads off however many
 resolved indices that entity declared, whether two or three.
 
+\subsection{Circuit elements}
+\label{sec:circuit-elements}
+
+Figure~\ref{fig:elements} shows the six elements a circuit's topology is actually built
+from: the resistor, capacitor, and inductor (Section~\ref{sec:circuit-solver} gives each
+element's transient stamp, Section~\ref{sec:ac-analysis} its AC admittance), the memristor
+(Section~\ref{sec:related-work}), the diode, and the ideal op-amp, the mod's only
+three-terminal component (see above). A plain right-click cycles each through a small set of
+preset values; the shift-right-click value editor (Section~\ref{sec:limitations}) additionally
+accepts an arbitrary value directly for every element except the diode (a categorical
+silicon/germanium/LED choice) and the op-amp (fixed, ideal behavior with no adjustable
+parameter at all).
+
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.85\textwidth]{figures/component_gallery.png}
-\caption{The seventeen blocks and items provided by the mod, including the AC Source and AC
-Probe (Section~\ref{sec:ac-analysis}) added in a later version.}
-\label{fig:gallery}
+\includegraphics[width=0.6\textwidth]{figures/elements_gallery.png}
+\caption{The six circuit elements: resistor, capacitor, inductor, memristor, diode, and ideal
+op-amp.}
+\label{fig:elements}
+\end{figure}
+
+\subsection{Wire and ground}
+
+Figure~\ref{fig:wireground} shows the mod's only two purely topological blocks. A wire
+conducts on all six faces and has no orientation of its own; a ground block (see
+Section~\ref{sec:circuit-solver}) behaves identically to wire for topology purposes but
+additionally establishes the network's voltage reference, so that every other node's solved
+voltage is meaningful as an absolute quantity rather than only relative to some other probed
+point. Both are placed and removed with no adjustable state at all.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.28\textwidth]{figures/wire_ground_gallery.png}
+\caption{Wire and ground, the mod's only two purely topological blocks.}
+\label{fig:wireground}
+\end{figure}
+
+\subsection{Generators}
+
+Figure~\ref{fig:generators} shows the mod's three independent voltage sources, plus the two
+modules that adjust one of them. The power supply is a fixed-DC source stepped through a
+preset voltage cycle; the function generator produces a sine, square, or triangle wave
+(cycled by right-click) at a default 5~V, 1~Hz, overridden independently by a voltage module
+or a frequency module placed directly against one of its side faces -- these are the
+function generator's ``additional elements,'' each a single-purpose block with no function of
+its own beyond feeding one number to whichever generator it is attached to. The AC Source
+(Section~\ref{sec:ac-analysis}) is not a transient source at all: it contributes nothing to
+the regular per-tick simulation and exists solely to be swept by the AC probe
+(Section~\ref{sec:probes} below), its amplitude and frequency range set entirely through the
+value editor rather than a preset cycle. All three sources -- power supply, function
+generator, and AC Source alike -- additionally require a redstone signal before they drive
+anything at all (Section~\ref{sec:pedagogy} discusses the pedagogical reasoning): the first
+two remain an open circuit, and the AC Source sweeps silently at 0~V, until powered.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.6\textwidth]{figures/generators_gallery.png}
+\caption{The three voltage sources -- power supply, function generator, and AC Source -- and
+the two modules, voltage and frequency, that adjust the function generator's output.}
+\label{fig:generators}
+\end{figure}
+
+\subsection{Probes}
+\label{sec:probes}
+
+Figure~\ref{fig:probes} shows the mod's four measurement tools. The ammeter is the odd one
+out: an in-circuit block rather than a handheld item, wired in series like any other
+two-terminal component, electrically an ideal 0~V source (a wire) so it reports an exact
+branch current with no series resistance to distort whatever it is measuring. The other three
+are handheld items a player holds rather than places -- the time-domain oscilloscope probe,
+the X-Y probe, and the AC (Bode-plot) probe -- each pinned against components, wires, or
+ground blocks to read them rather than wired into the network itself, described in their own
+subsections below and in Section~\ref{sec:ac-analysis} respectively.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.4\textwidth]{figures/probes_gallery.png}
+\caption{The four measurement tools: the in-circuit ammeter, and three handheld oscilloscope
+probes.}
+\label{fig:probes}
 \end{figure}
 
 \subsection{Multi-channel oscilloscope protocol}
